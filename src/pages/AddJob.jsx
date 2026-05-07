@@ -56,7 +56,7 @@ const AddJob = () => {
             </div>
 
             <div className="w-full">
-              <button type='submit' className='w-full bg-[#6b46c1] text-white py-2 rounded-lg cursor-pointer flex flex-row items-center justify-center gap-2'><FiSave size={20} /> Save Application</button>
+              <button type='submit' className='w-full bg-[#6b46c1] text-white hover:bg-purple-800 py-2 rounded-lg cursor-pointer flex flex-row items-center justify-center gap-2'><FiSave size={20} /> Save Application</button>
             </div>
           </form>
         </div>

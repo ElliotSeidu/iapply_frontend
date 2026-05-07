@@ -16,7 +16,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 w-full gap-5 md:gap-10">
-            <div className="shadow-xl rounded-lg h-30 px-3 md:px-5 py-4 flex flex-col">
+            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-4 flex flex-col">
                 <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
                     <h5 className="text-sm font-semibold">Total Applications</h5>
                     <BsFileEarmarkText size={20} className="text-[#6b46c1]" />
@@ -25,7 +25,7 @@ const Dashboard = () => {
                 <p className="text-[#38a169] text-xs">+3 this week</p>
             </div>
 
-            <div className="shadow-xl rounded-lg h-30 px-3 md:px-5 py-5 flex flex-col">
+            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-5 flex flex-col">
                 <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
                     <h5 className="text-sm font-semibold">Active Interviews</h5>
                     <GrSchedule size={20} className="text-[#3182ce]" />
@@ -34,7 +34,7 @@ const Dashboard = () => {
                 <p className="text-[#3182ce] text-xs">Next: Tomorrow</p>
             </div>
 
-            <div className="shadow-xl rounded-lg h-30 px-3 md:px-5 py-5 flex flex-col gap-1">
+            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-5 flex flex-col gap-1">
                 <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
                     <h5 className="text-sm font-semibold">Offers Received</h5>
                     <FaRegCheckCircle size={20} className="text-[#38a169]" />
@@ -43,7 +43,7 @@ const Dashboard = () => {
                 <p className="text-[#38a169] text-xs">Keep it up!</p>
             </div>
 
-            <div className="shadow-xl rounded-lg h-30 px-3 md:px-5 py-5 flex flex-col gap-1">
+            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-5 flex flex-col gap-1">
                 <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
                     <h5 className="text-sm font-semibold">Rejections</h5>
                     <IoCloseCircleOutline size={20} className="text-[#e53e3e]" />
@@ -62,7 +62,7 @@ const Dashboard = () => {
             </div>
         </div>
 
-        <div className="flex flex-col shadow-lg px-5 py-5 rounded-lg">
+        <div className="flex flex-col shadow-lg px-5 py-5 rounded-lg mb-20">
             <div className="flex flex-row justify-between items-center mt-5">
                 <h3 className="text-md font-semibold">Recent Activity</h3>
                 <Link to="analytics" className="text-sm underline decoration-[#6b46c1] text-[#6b46c1]">View All</Link>
@@ -70,7 +70,7 @@ const Dashboard = () => {
 
             <div className="flex flex-col gap-3 mt-5">
 
-                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center">
+                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center shadow-md">
                     <div className="flex flex-row gap-2 items-center">
                         <div className="w-7 h-7 bg-white rounded-lg items-center justify-center">
                             <TbBriefcase2 size={25} />
@@ -89,7 +89,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center">
+                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center shadow-md">
                     <div className="flex flex-row gap-2 items-center">
                         <div className="w-7 h-7 bg-white rounded-lg items-center justify-center">
                             <TbBriefcase2 size={25} />
@@ -108,7 +108,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center">
+                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center shadow-md">
                     <div className="flex flex-row gap-2 items-center">
                         <div className="w-7 h-7 bg-white rounded-lg items-center justify-center">
                             <TbBriefcase2 size={25} />

@@ -27,7 +27,7 @@ const NavBar = () => {
   return (
     <>
         { isMdUp ? 
-            <nav className='hidden md:flex gap-5 flex-row fixed py-2 px-1 w-full h-auto justify-center items-center bg-white z-10 shadow-xl'>
+            <nav className='hidden md:flex gap-5 flex-row fixed py-2 px-1 w-full h-auto justify-center items-center bg-white z-10 shadow-lg'>
                 <NavLink to="/" className={({ isActive }) => `flex flex-row items-center gap-2 rounded-md py-1 px-2 ${isActive ? "underline decoration-[#6b46c1] text-[#6b46c1]" : ""}`}>
                     <h3>Dashboard</h3>
                 </NavLink>
