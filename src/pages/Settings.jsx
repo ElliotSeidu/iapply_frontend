@@ -1,120 +1,202 @@
-import React from 'react'
+import { useState } from "react";
+import { FiSave, FiLock, FiLogOut, FiTrash2 } from "react-icons/fi";
 
-const Settings = () => {
-  return (
-    <div className="mx-2 mt-3 md:mx-5 md:mt-15 gap-4 flex flex-col">
-        <div className="flex flex-col md:flex-row justify-center md:justify-start items-center gap-2 bg-white w-full rounded-xl shadow-xl p-4">
-            <div className="w-20 h-20 md:w-25 md:h-25 rounded-full shadow-xl p-2 flex items-center">
-              <img src="pic.jpg" alt="Profile pic" className='rounded-full' />
-            </div>
-            <div className="flex flex-col gap-1 justify-center items-center md:items-start">
-              <h2 className="text-3xl font-semibold">Alex Rivera</h2>
-              <p className="text-sm font-light">alex@example.com</p>
-            </div>
+const inputCls =
+  "w-full bg-slate-50 border border-slate-200 focus:border-[#7c3aed] focus:ring-2 focus:ring-purple-100 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none transition placeholder:text-slate-300";
 
-            <div className="flex flex-row md:flex-col gap-3 justify-center items-center md:ml-auto">
-              <div className="bg-purple-200 text-[#6b46c1] text-sm md:text-lg rounded-lg px-2 py-1 font-bold">
-                12 APPLICATIONS
-              </div>
-              <div className="bg-green-200 text-md text-sm md:text-lg text-[#38a169] rounded-lg px-2 py-1 font-bold">
-                3 INTERVIEWS
-              </div>
-            </div>
-        </div>
+const labelCls = "block text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1.5";
 
-        <div className="flex flex-col md:flex-row gap-5">
-          <div className='flex flex-col gap-3 shadow-lg p-3 w-full md:w-1/2 rounded-lg'>
-            <h3 className="text-xl font-semibold">Account Details</h3>
+// ─── Toggle ───────────────────────────────────────────────────────────────────
+const Toggle = ({ label, description, checked, onChange }) => (
+  <div className="flex items-start justify-between gap-4 py-5 border-b border-slate-100 last:border-0">
+    
+    <div className="flex-1">
+      <p className="text-sm font-semibold text-slate-800">
+        {label}
+      </p>
 
-            <form action="" className='flex flex-col gap-3'>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="flex flex-col w-full">
-                  <label htmlFor="full-name" className='text-sm font-semibold'>Full Name</label>
-                  <input type="text" placeholder='e.g. Franklin Moore' className='bg-[#e9d8fd] py-1.5 pl-2 rounded-md border-[#6b46c1] outline-0' />
-                </div>
-                <div className="flex flex-col w-full">
-                  <label htmlFor="email-address" className='text-sm font-semibold'>Email Address</label>
-                  <input type="email" placeholder='moore@gmail.com' className='bg-[#e9d8fd] py-1.5 pl-2 rounded-md border-[#6b46c1] outline-0' />
-                </div>
-                <div className="flex flex-col w-full">
-                  <label htmlFor="role" className='text-sm font-semibold'>Current Role</label>
-                  <input type="text" placeholder='e.g. Acme Corp' className='bg-[#e9d8fd] py-1.5 pl-2 rounded-md border-[#6b46c1] outline-0' />
-                </div>
-                <div className="flex flex-col w-full">
-                  <label htmlFor="location" className='text-sm font-semibold'>Location</label>
-                  <input type="text" placeholder='San Francisco, CA' className='bg-[#e9d8fd] py-1.5 pl-2 rounded-md border-[#6b46c1] outline-0' />
-                </div>
-              </div>
-              <div className="flex w-full items-center justify-center md:justify-end">
-                <button type='submit' className='w-full md:w-70 bg-[#6b46c1] text-white rounded-lg cursor-pointer flex flex-row items-center justify-center p-1 hover:bg-purple-800'>Save Changes</button>
-              </div>
-            </form>
-          </div>
-
-          <form action="" className="flex flex-col gap-3 shadow-lg p-3 w-full md:w-1/2 justify-center rounded-lg">
-            <h3 className="text-xl font-semibold">Password Change</h3>
-
-            <div className="flex flex-col gap-5">
-              <div className="flex flex-col w-full md:w-1/2">
-                <label htmlFor="company-name" className='text-xs font-semibold'>Current Password</label>
-                <input type="password" placeholder='Password...' className='bg-[#e9d8fd] py-1.5 pl-2 rounded-md border-[#6b46c1] outline-0' />
-              </div>
-              <div className="flex flex-row gap-3">
-                <div className="flex flex-col w-full md:w-1/2">
-                  <label htmlFor="company-name" className='text-xs font-semibold'>New Password</label>
-                  <input type="password" placeholder='Password...' className='w-full bg-[#e9d8fd] py-1.5 pl-2 rounded-md border-[#6b46c1] outline-0' />
-                </div>
-                <div className="flex flex-col w-full md:w-1/2">
-                  <label htmlFor="company-name" className='text-xs font-semibold'>Confirm Password</label>
-                  <input type="password" placeholder='Password...' className='bg-[#e9d8fd] py-1.5 pl-2 rounded-md border-[#6b46c1] outline-0 w-full' />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex w-full items-center justify-center md:justify-end">
-                <button type='submit' className='w-full md:w-70 bg-[#6b46c1] text-white rounded-lg cursor-pointer flex flex-row items-center justify-center p-1 hover:bg-purple-800'>Update Password</button>
-              </div>
-          </form>
-        </div>
-
-        <div className="flex flex-col p-3 rounded-lg shadow-lg gap-5">
-          <h3 className='text-2xl font-semibold'>Notification Preferences</h3>
-
-          <div className="flex flex-row w-full border-b justify-between px-4 items-center pb-5">
-            <label htmlFor="email-notifications" className='text-md font-semibold flex flex-col justify-center'>
-              Email Notifications
-              <span className="text-[10px] md:text-xs">Receive alerts via email</span>
-            </label>
-            <input type="checkbox" />
-          </div>
-
-          <div className="flex flex-row w-full border-b justify-between px-4 items-center pb-5">
-            <label htmlFor="push-notifications" className='text-md font-semibold flex flex-col justify-center'>
-              Push Notifications
-              <span className="text-[10px] md:text-xs">Get instant updates on your browser or mobile device</span>
-            </label>
-            <input type="checkbox" />
-          </div>
-
-          <div className="flex flex-row w-full border-b justify-between px-4 items-center pb-5">
-            <label htmlFor="weekly-summary" className='text-md font-semibold flex flex-col justify-center'>
-              Weekly Summary
-              <span className="text-[10px] md:text-xs">A curated report of your application progress every Monday</span>
-            </label>
-            <input type="checkbox" />
-          </div>
-        </div>
-
-        <button className="border rounded-lg border-red-400 md:m-auto p-2 w-full md:w-1/3 cursor-pointer hover:text-white hover:bg-red-400 text-red-600">Sign Out ➡️</button>
-
-        <div className="flex flex-col bg-red-200 rounded-lg shadow-lg py-2 px-3 mb-20">
-          <div className="flex flex-col justify-between py-2 items-center gap-5">
-            <p className='text-red-600'>Permanently delete your account and all your application data.</p>
-            <button className="bg-red-700 px-2 py-1 rounded-lg cursor-pointer text-white hover:bg-red-900">Delete Account</button>
-          </div>
-        </div>
+      <p className="text-sm text-slate-500 mt-1 leading-relaxed max-w-md">
+        {description}
+      </p>
     </div>
-  )
-}
 
-export default Settings
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`
+        relative inline-flex h-7 w-14 items-center rounded-full
+        transition-all duration-300 ease-out
+        focus:outline-none focus:ring-4 focus:ring-violet-200
+        shadow-sm
+        ${checked 
+          ? "bg-gradient-to-r from-violet-600 to-purple-600" 
+          : "bg-slate-300"}
+      `}
+    >
+      <span
+        className={`
+          inline-block h-5 w-5 transform rounded-full bg-white
+          transition-all duration-300 ease-out
+          shadow-md
+          ${checked ? "translate-x-8" : "translate-x-1"}
+        `}
+      />
+    </button>
+  </div>
+);
+
+// ─── Section card ─────────────────────────────────────────────────────────────
+const Card = ({ children, className = "" }) => (
+  <div className={`bg-white rounded-2xl border border-slate-100 shadow-sm p-6 ${className}`}>
+    {children}
+  </div>
+);
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+const Settings = () => {
+  const [notifs, setNotifs] = useState({ email: true, push: false, weekly: true });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const toggle = (key) => setNotifs((n) => ({ ...n, [key]: !n[key] }));
+
+  return (
+    <div className="px-4 py-16 md:px-10 flex flex-col gap-6 max-w-4xl">
+      <div className="mb-2">
+        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Settings</h1>
+        <p className="text-sm text-slate-400 mt-1">Manage your profile, security, and preferences.</p>
+      </div>
+
+      {/* Profile card */}
+      <Card>
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+          <div className="relative flex-shrink-0">
+            <img src="pic.jpg" alt="Profile" className="w-20 h-20 rounded-2xl object-cover ring-4 ring-purple-100" />
+            <span className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-400 rounded-full ring-2 ring-white" />
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h2 className="text-xl font-bold text-slate-800">Alex Rivera</h2>
+            <p className="text-sm text-slate-400">alex@example.com</p>
+            <div className="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-violet-100 text-violet-700">12 Applications</span>
+              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">3 Interviews</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Two-column section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Account details */}
+        <Card>
+          <h3 className="text-base font-bold text-slate-800 mb-5">Account Details</h3>
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className={labelCls}>Full Name</label>
+                <input type="text" placeholder="Franklin Moore" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Email</label>
+                <input type="email" placeholder="moore@gmail.com" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Current Role</label>
+                <input type="text" placeholder="e.g. UX Designer" className={inputCls} />
+              </div>
+              <div>
+                <label className={labelCls}>Location</label>
+                <input type="text" placeholder="San Francisco, CA" className={inputCls} />
+              </div>
+            </div>
+            <button className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] active:scale-[.98] text-white text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-purple-100 mt-1">
+              <FiSave size={14} /> Save Changes
+            </button>
+          </div>
+        </Card>
+
+        {/* Password */}
+        <Card>
+          <h3 className="text-base font-bold text-slate-800 mb-5">Change Password</h3>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label className={labelCls}>Current Password</label>
+              <input type="password" placeholder="••••••••" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>New Password</label>
+              <input type="password" placeholder="••••••••" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Confirm New Password</label>
+              <input type="password" placeholder="••••••••" className={inputCls} />
+            </div>
+            <button className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] active:scale-[.98] text-white text-sm font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-purple-100">
+              <FiLock size={14} /> Update Password
+            </button>
+          </div>
+        </Card>
+      </div>
+
+      {/* Notifications */}
+      <Card>
+        <h3 className="text-base font-bold text-slate-800 mb-1">Notification Preferences</h3>
+        <p className="text-xs text-slate-400 mb-4">Choose how you want to be kept in the loop.</p>
+        <Toggle
+          label="Email Notifications"
+          description="Receive activity alerts via email."
+          checked={notifs.email}
+          onChange={() => toggle("email")}
+        />
+        <Toggle
+          label="Push Notifications"
+          description="Instant updates on your browser or mobile device."
+          checked={notifs.push}
+          onChange={() => toggle("push")}
+        />
+        <Toggle
+          label="Weekly Summary"
+          description="A curated progress report delivered every Monday."
+          checked={notifs.weekly}
+          onChange={() => toggle("weekly")}
+        />
+      </Card>
+
+      {/* Danger zone */}
+      <Card>
+        <h3 className="text-base font-bold text-slate-800 mb-1">Account Actions</h3>
+        <p className="text-xs text-slate-400 mb-5">Manage your session or permanently remove your account.</p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button className="flex items-center justify-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-[.98] transition-all">
+            <FiLogOut size={15} /> Sign Out
+          </button>
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="flex items-center justify-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 active:scale-[.98] transition-all"
+          >
+            <FiTrash2 size={15} /> Delete Account
+          </button>
+        </div>
+
+        {showDeleteConfirm && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-100 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <p className="text-sm text-red-600 font-medium">This will permanently delete all your data. Are you sure?</p>
+            <div className="flex gap-2 flex-shrink-0">
+              <button onClick={() => setShowDeleteConfirm(false)} className="text-xs px-3 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white transition">
+                Cancel
+              </button>
+              <button className="text-xs px-3 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition font-semibold">
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      <div className="pb-8" />
+    </div>
+  );
+};
+
+export default Settings;

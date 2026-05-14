@@ -1,135 +1,124 @@
-import { BsFileEarmarkText } from "react-icons/bs"
-import { FaRegCheckCircle } from "react-icons/fa"
-import { GrSchedule } from "react-icons/gr"
-import { IoCloseCircleOutline } from "react-icons/io5"
-import { TbBriefcase2 } from "react-icons/tb"
-import { Link } from "react-router-dom"
-import VelocityChart from "../graphs/VelocityChart"
-import StatusChart from "../graphs/StatusChart"
+import { Link } from "react-router-dom";
+import { BsFileEarmarkText } from "react-icons/bs";
+import { FaRegCheckCircle } from "react-icons/fa";
+import { GrSchedule } from "react-icons/gr";
+import { IoCloseCircleOutline } from "react-icons/io5";
+import { TbBriefcase2 } from "react-icons/tb";
+import { MdOpenInNew } from "react-icons/md";
+import VelocityChart from "../graphs/VelocityChart";
+import StatusChart from "../graphs/StatusChart";
+
+// ─── Stat card ────────────────────────────────────────────────────────────────
+const StatCard = ({ icon, label, value, sub, subColor, accentBg }) => (
+  <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${accentBg}`}>
+      {icon}
+    </div>
+    <div>
+      <p className="text-3xl font-bold text-slate-800 tracking-tight">{value}</p>
+      <p className="text-xs text-slate-400 mt-0.5 font-medium">{label}</p>
+    </div>
+    <p className={`text-xs font-semibold ${subColor}`}>{sub}</p>
+  </div>
+);
+
+// ─── Status badge ─────────────────────────────────────────────────────────────
+const STATUS_STYLES = {
+  Interviewing: "bg-amber-100 text-amber-700",
+  Applied:      "bg-sky-100 text-sky-700",
+  Offered:      "bg-emerald-100 text-emerald-700",
+  Rejected:     "bg-red-100 text-red-600",
+};
+
+// ─── Activity row ─────────────────────────────────────────────────────────────
+const ActivityRow = ({ company, title, status, date }) => (
+  <div className="flex items-center gap-4 py-3 border-b border-slate-50 last:border-0">
+    <div className="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center flex-shrink-0">
+      <TbBriefcase2 size={18} className="text-violet-500" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-sm font-semibold text-slate-800 truncate">{company}</p>
+      <p className="text-xs text-slate-400 truncate">{title}</p>
+    </div>
+    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+      <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${STATUS_STYLES[status] || "bg-slate-100 text-slate-500"}`}>
+        {status}
+      </span>
+      <span className="text-[11px] text-slate-300">{date}</span>
+    </div>
+  </div>
+);
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+const RECENT = [
+  { company: "TechFlow",   title: "Senior UX Designer",   status: "Interviewing", date: "Oct 24" },
+  { company: "Acme Corp",  title: "Product Manager",       status: "Applied",      date: "Nov 1" },
+  { company: "StartupXYZ",title: "Frontend Engineer",      status: "Offered",      date: "Oct 30" },
+  { company: "Globex",     title: "Data Analyst",          status: "Rejected",     date: "Oct 18" },
+];
 
 const Dashboard = () => {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
-    <div className="mx-2 mt-3 md:mx-5 md:mt-15 flex flex-col gap-10">
-        <div className="flex flex-col">
-            <h2 className="text-2xl font-semibold">Good morning, Frank</h2>
-            <p className="text-sm">You have 3 interviews scheduled for this week, keep up the momentum</p>
+    <div className="px-4 py-16 md:px-10 flex flex-col gap-8">
+      {/* Greeting */}
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">{greeting}, Frank 👋</h1>
+        <p className="text-sm text-slate-400 mt-1">You have 3 interviews scheduled this week — keep pushing.</p>
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          icon={<BsFileEarmarkText size={17} className="text-violet-600" />}
+          accentBg="bg-violet-50"
+          label="Total Applications" value="42"
+          sub="+3 this week" subColor="text-emerald-500"
+        />
+        <StatCard
+          icon={<GrSchedule size={17} className="text-sky-600" />}
+          accentBg="bg-sky-50"
+          label="Active Interviews" value="5"
+          sub="Next: Tomorrow" subColor="text-sky-500"
+        />
+        <StatCard
+          icon={<FaRegCheckCircle size={17} className="text-emerald-600" />}
+          accentBg="bg-emerald-50"
+          label="Offers Received" value="4"
+          sub="9.5% offer rate" subColor="text-emerald-500"
+        />
+        <StatCard
+          icon={<IoCloseCircleOutline size={17} className="text-red-500" />}
+          accentBg="bg-red-50"
+          label="Rejections" value="32"
+          sub="Keep it pushing!" subColor="text-slate-400"
+        />
+      </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <VelocityChart />
         </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 w-full gap-5 md:gap-10">
-            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-4 flex flex-col">
-                <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
-                    <h5 className="text-sm font-semibold">Total Applications</h5>
-                    <BsFileEarmarkText size={20} className="text-[#6b46c1]" />
-                </div>
-                <h1 className="text-3xl font-semibold text-[#6b46c1]">42</h1>
-                <p className="text-[#38a169] text-xs">+3 this week</p>
-            </div>
-
-            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-5 flex flex-col">
-                <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
-                    <h5 className="text-sm font-semibold">Active Interviews</h5>
-                    <GrSchedule size={20} className="text-[#3182ce]" />
-                </div>
-                <h1 className="text-3xl font-semibold text-[#3182ce]">5</h1>
-                <p className="text-[#3182ce] text-xs">Next: Tomorrow</p>
-            </div>
-
-            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-5 flex flex-col gap-1">
-                <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
-                    <h5 className="text-sm font-semibold">Offers Received</h5>
-                    <FaRegCheckCircle size={20} className="text-[#38a169]" />
-                </div>
-                <h1 className="text-3xl font-semibold text-[#38a169]">4</h1>
-                <p className="text-[#38a169] text-xs">Keep it up!</p>
-            </div>
-
-            <div className="shadow-xl rounded-lg h-32 px-3 md:px-5 py-5 flex flex-col gap-1">
-                <div className="w-full h-full p-1 rounded-sm flex flex-row justify-between">
-                    <h5 className="text-sm font-semibold">Rejections</h5>
-                    <IoCloseCircleOutline size={20} className="text-[#e53e3e]" />
-                </div>
-                <h1 className="text-3xl font-semibold text-[#e53e3e]">32</h1>
-                <p className="text-[#e53e3e] text-xs">Keep it Pushing</p>
-            </div>
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+          <StatusChart />
         </div>
+      </div>
 
-        <div className="flex flex-col md:flex-row gap-4 w-full">
-            <div className="w-full md:w-1/2">
-                <VelocityChart />
-            </div>
-            <div className="w-full md:w-1/2">
-                <StatusChart />
-            </div>
+      {/* Recent activity */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-semibold text-slate-700">Recent Activity</p>
+          <Link to="/applications" className="text-xs font-semibold text-[#7c3aed] hover:underline flex items-center gap-1">
+            View all <MdOpenInNew size={13} />
+          </Link>
         </div>
-
-        <div className="flex flex-col shadow-lg px-5 py-5 rounded-lg mb-20">
-            <div className="flex flex-row justify-between items-center mt-5">
-                <h3 className="text-md font-semibold">Recent Activity</h3>
-                <Link to="analytics" className="text-sm underline decoration-[#6b46c1] text-[#6b46c1]">View All</Link>
-            </div>
-
-            <div className="flex flex-col gap-3 mt-5">
-
-                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center shadow-md">
-                    <div className="flex flex-row gap-2 items-center">
-                        <div className="w-7 h-7 bg-white rounded-lg items-center justify-center">
-                            <TbBriefcase2 size={25} />
-                        </div>
-                        <div className="flex flex-col">
-                            <h3 className="text-sm">TechFlow</h3>
-                            <p className="text-xs font-light">Senior UX Designer</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                        <div className="px-3 py-1 bg-[#38a169] rounded-lg">
-                            <p className="text-xs">Interviewing</p>
-                        </div>
-                        <p className="text-xs flex justify-end font-light">Oct 24, 2023</p>
-                    </div>
-                </div>
-
-                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center shadow-md">
-                    <div className="flex flex-row gap-2 items-center">
-                        <div className="w-7 h-7 bg-white rounded-lg items-center justify-center">
-                            <TbBriefcase2 size={25} />
-                        </div>
-                        <div className="flex flex-col">
-                            <h3 className="text-sm">TechFlow</h3>
-                            <p className="text-xs font-light">Senior UX Designer</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                        <div className="px-3 py-1 bg-[#38a169] rounded-lg">
-                            <p className="text-xs">Interviewing</p>
-                        </div>
-                        <p className="text-xs flex justify-end font-light">Oct 24, 2023</p>
-                    </div>
-                </div>
-
-                <div className="flex flex-row justify-between bg-[#e9d8fd] p-2 rounded-lg gap-2 items-center shadow-md">
-                    <div className="flex flex-row gap-2 items-center">
-                        <div className="w-7 h-7 bg-white rounded-lg items-center justify-center">
-                            <TbBriefcase2 size={25} />
-                        </div>
-                        <div className="flex flex-col">
-                            <h3 className="text-sm">TechFlow</h3>
-                            <p className="text-xs font-light">Senior UX Designer</p>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1">
-                        <div className="px-3 py-1 bg-[#38a169] rounded-lg">
-                            <p className="text-xs">Interviewing</p>
-                        </div>
-                        <p className="text-xs flex justify-end font-light">Oct 24, 2023</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {RECENT.map((r, i) => <ActivityRow key={i} {...r} />)}
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
