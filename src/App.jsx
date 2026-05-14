@@ -6,6 +6,7 @@ import AddJob from './pages/AddJob'
 import Analytics from './pages/Analytics'
 import Settings from './pages/Settings'
 import Notifications from './pages/Notifications'
+import Login from './pages/Login'
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="settings" element={<Settings />} />
         <Route path="notifications" element={<Notifications />} />
       </Route>
+      <Route path="login" element={<Login />}></Route>
     </Routes>
   )
 }
