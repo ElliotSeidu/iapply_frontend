@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    /* Primary — refined indigo-violet, better contrast than the original purple */
+    --primary: #6d28d9;
+    --primary-hover: #5b21b6;
+    --primary-container: #ede9fe;
+    --on-primary: #ffffff;
+    --on-primary-container: #3c1670;
+    --primary-fixed: #ddd6fe;
+    --on-primary-fixed-variant: #5b21b6;
+    --inverse-primary: #c4b5fd;
+
+    --surface: #fbfaff;
+    --surface-container-lowest: #ffffff;
+    --surface-container-low: #f6f3fc;
+    --surface-container: #ede9f7;
+    --surface-container-high: #e2dcf1;
+    --surface-container-highest: #d6cce7;
+    --on-surface: #1b1730;
+    --on-surface-variant: #47415a;
+    --outline: #79738f;
+    --outline-variant: #cbc3dd;
+
+    /* Secondary — teal, clearly distinct from primary for status/positive accents */
+    --secondary: #0d9488;
+    --secondary-hover: #0f766e;
+    --secondary-container: #ccfbf1;
+    --on-secondary-container: #0a5c53;
+
+    /* Tertiary — warm amber for attention/reminders */
+    --tertiary: #b45309;
+    --tertiary-container: #ffedd2;
+    --on-tertiary-container: #7c2d12;
+
+    --error: #dc2626;
+    --error-hover: #b91c1c;
+    --error-container: #fee2e2;
+    --on-error-container: #7f1d1d;
+
+    --success: #16a34a;
+    --success-container: #dcfce7;
+    --on-success-container: #14532d;
+  }
+
+  .dark {
+    --primary: #b794f6;
+    --primary-hover: #cbb2fb;
+    --primary-container: #4c1d95;
+    --on-primary: #1a0a33;
+    --on-primary-container: #ede9fe;
+    --primary-fixed: #4c1d95;
+    --on-primary-fixed-variant: #ede9fe;
+    --inverse-primary: #7c3aed;
+
+    /* Pure Black Dark Theme, kept per the original design language */
+    --surface: #000000;
+    --surface-container-lowest: #0a0a0a;
+    --surface-container-low: #131113;
+    --surface-container: #1c191f;
+    --surface-container-high: #262229;
+    --surface-container-highest: #302b34;
+    --on-surface: #f5f3f9;
+    --on-surface-variant: #ada6bb;
+    --outline: #7d7690;
+    --outline-variant: #2a2630;
+
+    --secondary: #2dd4bf;
+    --secondary-hover: #5eead4;
+    --secondary-container: #0a5c53;
+    --on-secondary-container: #ccfbf1;
+
+    --tertiary: #fb923c;
+    --tertiary-container: #7c2d12;
+    --on-tertiary-container: #ffedd2;
+
+    --error: #f87171;
+    --error-hover: #fca5a5;
+    --error-container: #4c0d0d;
+    --on-error-container: #fecaca;
+
+    --success: #4ade80;
+    --success-container: #0f3d20;
+    --on-success-container: #bbf7d0;
+  }
+
+  body {
+    background-color: var(--surface);
+    color: var(--on-surface);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  ::selection {
+    background-color: var(--primary-fixed);
+    color: var(--on-primary-fixed-variant);
+  }
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
+  --color-on-primary-container: var(--on-primary-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+  --color-inverse-primary: var(--inverse-primary);
+
+  --color-surface: var(--surface);
+  --color-surface-container-lowest: var(--surface-container-lowest);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --color-outline-variant: var(--outline-variant);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary-container: var(--on-secondary-container);
+
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-container: var(--tertiary-container);
+  --color-on-tertiary-container: var(--on-tertiary-container);
+
+  --color-error: var(--error);
+  --color-error-hover: var(--error-hover);
+  --color-error-container: var(--error-container);
+  --color-on-error-container: var(--on-error-container);
+
+  --color-success: var(--success);
+  --color-success-container: var(--success-container);
+  --color-on-success-container: var(--on-success-container);
+}
