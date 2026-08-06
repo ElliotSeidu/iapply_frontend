@@ -6,7 +6,8 @@ import { loginSchema, registerSchema, type LoginFormValues, type RegisterFormVal
 import { getPasswordStrength } from '../utils/validation';
 import { FormField, inputClass } from './ui/FormField';
 import { useAuth } from '../context/AuthContext';
-import { getErrorMessage } from '../lib/api';
+import { getErrorMessage, verifyRegisterRequest } from '../lib/api';
+import { setAccessToken, setRefreshToken } from '../lib/tokenStore';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -14,7 +15,11 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { login, register: registerUser } = useAuth();
+  const { login, register: registerUser, refreshUser } = useAuth();
+  const [awaitingVerification, setAwaitingVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState<string | null>(null);
+  const [verificationPassword, setVerificationPassword] = useState<string | null>(null);
+  const [verificationCode, setVerificationCode] = useState('');
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -56,12 +61,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setServerError(null);
     try {
       await registerUser(values);
-      onClose();
-      registerForm.reset();
+      // show verification step
+      setVerificationEmail(values.email);
+      setVerificationPassword(values.password);
+      setAwaitingVerification(true);
     } catch (err) {
       setServerError(getErrorMessage(err, 'Could not create your account. Please try again.'));
     }
   });
+
+  const onVerifySubmit = async () => {
+    setServerError(null);
+    if (!verificationEmail) return;
+    try {
+      // call verify endpoint which returns access + refresh tokens
+      const data = await verifyRegisterRequest({ email: verificationEmail, code: verificationCode });
+      if (data.access) setAccessToken(data.access);
+      if (data.refresh) setRefreshToken(data.refresh);
+      // hydrate user
+      await refreshUser();
+      setAwaitingVerification(false);
+      setVerificationEmail(null);
+      setVerificationPassword(null);
+      setVerificationCode('');
+      registerForm.reset();
+      onClose();
+    } catch (err) {
+      setServerError(getErrorMessage(err, 'Verification failed. Please check the code and try again.'));
+    }
+  };
 
   const isSubmitting = mode === 'login' ? loginForm.formState.isSubmitting : registerForm.formState.isSubmitting;
 
@@ -161,7 +189,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </button>
           </form>
         ) : (
-          <form onSubmit={onRegisterSubmit} className="p-6 space-y-4 overflow-y-auto flex-1" noValidate>
+          {!awaitingVerification ? (
+            <form onSubmit={onRegisterSubmit} className="p-6 space-y-4 overflow-y-auto flex-1" noValidate>
             {serverError && (
               <div className="p-3 bg-error-container text-on-error-container rounded-xl text-sm font-medium flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -274,7 +303,53 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
               {isSubmitting ? 'Creating account…' : 'Create iApply Account'}
             </button>
-          </form>
+            </form>
+          ) : (
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
+              <div className="p-3 bg-surface-container-low rounded-xl text-sm">
+                A verification code was sent to <strong>{verificationEmail}</strong>. Enter it below to complete signup.
+              </div>
+
+              <FormField label="Verification Code" required icon={<Mail className="w-5 h-5" /> } error={undefined}>
+                <input
+                  type="text"
+                  placeholder="123456"
+                  className={inputClass(false)}
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                />
+              </FormField>
+
+              {serverError && (
+                <div className="p-3 bg-error-container text-on-error-container rounded-xl text-sm font-medium flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{serverError}</span>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onVerifySubmit}
+                  className="flex-1 py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+                >
+                  Verify & Continue
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAwaitingVerification(false);
+                    setVerificationEmail(null);
+                    setVerificationPassword(null);
+                    setServerError(null);
+                  }}
+                  className="py-3 px-4 border rounded-xl"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         )}
       </div>
     </div>
