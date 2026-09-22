@@ -21,41 +21,40 @@
  * but is worth doing server-side later.
  */
 
-const REFRESH_KEY = 'iapply_refresh_token';
+const REFRESH_KEY = "iapply_refresh_token";
+let accessToken = null;
 
-let accessToken: string | null = null;
-
-export function getAccessToken(): string | null {
-  return accessToken;
+export function getAccessToken() {
+    return accessToken;
 }
 
-export function setAccessToken(token: string | null): void {
-  accessToken = token;
+export function setAccessToken(token) {
+    accessToken = token;
 }
 
-export function getRefreshToken(): string | null {
-  try {
-    return sessionStorage.getItem(REFRESH_KEY);
-  } catch {
-    // sessionStorage can throw in locked-down/private browsing contexts.
-    return null;
-  }
-}
-
-export function setRefreshToken(token: string | null): void {
-  try {
-    if (token) {
-      sessionStorage.setItem(REFRESH_KEY, token);
-    } else {
-      sessionStorage.removeItem(REFRESH_KEY);
+export function getRefreshToken() {
+    try {
+        return sessionStorage.getItem(REFRESH_KEY);
+    } catch {
+        // sessionStorage can throw in locked-down/private browsing contexts.
+        return null;
     }
-  } catch {
-    // Ignore storage failures — worst case, refresh-on-reload silently fails
-    // and the user is asked to log in again, which is safe.
-  }
 }
 
-export function clearTokens(): void {
-  accessToken = null;
-  setRefreshToken(null);
+export function setRefreshToken(token) {
+    try {
+        if (token) {
+            sessionStorage.setItem(REFRESH_KEY, token);
+        } else {
+            sessionStorage.removeItem(REFRESH_KEY);
+        }
+    } catch {
+        // Ignore storage failures — worst case, refresh-on-reload silently fails
+        // and the user is asked to log in again, which is safe.
+    }
+}
+
+export function clearTokens() {
+    accessToken = null;
+    setRefreshToken(null);
 }

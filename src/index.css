@@ -1,138 +1,285 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
-  :root {
-    /* Primary — refined indigo-violet, better contrast than the original purple */
-    --primary: #6d28d9;
-    --primary-hover: #5b21b6;
-    --primary-container: #ede9fe;
-    --on-primary: #ffffff;
-    --on-primary-container: #3c1670;
-    --primary-fixed: #ddd6fe;
-    --on-primary-fixed-variant: #5b21b6;
-    --inverse-primary: #c4b5fd;
+    :root {
+        /* Primary — refined indigo-violet */
+        --primary: #6d28d9;
+        --primary-hover: #5b21b6;
+        --primary-container: #ede9fe;
+        --on-primary: #ffffff;
+        --on-primary-container: #3c1670;
+        --primary-fixed: #ddd6fe;
+        --on-primary-fixed-variant: #5b21b6;
+        --inverse-primary: #c4b5fd;
 
-    --surface: #fbfaff;
-    --surface-container-lowest: #ffffff;
-    --surface-container-low: #f6f3fc;
-    --surface-container: #ede9f7;
-    --surface-container-high: #e2dcf1;
-    --surface-container-highest: #d6cce7;
-    --on-surface: #1b1730;
-    --on-surface-variant: #47415a;
-    --outline: #79738f;
-    --outline-variant: #cbc3dd;
+        --surface: #fbfaff;
+        --surface-container-lowest: #ffffff;
+        --surface-container-low: #f6f3fc;
+        --surface-container: #ede9f7;
+        --surface-container-high: #e2dcf1;
+        --surface-container-highest: #d6cce7;
+        --on-surface: #1b1730;
+        --on-surface-variant: #47415a;
+        --outline: #79738f;
+        --outline-variant: #cbc3dd;
 
-    /* Secondary — teal, clearly distinct from primary for status/positive accents */
-    --secondary: #0d9488;
-    --secondary-hover: #0f766e;
-    --secondary-container: #ccfbf1;
-    --on-secondary-container: #0a5c53;
+        /* Secondary — teal */
+        --secondary: #0d9488;
+        --secondary-hover: #0f766e;
+        --secondary-container: #ccfbf1;
+        --on-secondary-container: #0a5c53;
 
-    /* Tertiary — warm amber for attention/reminders */
-    --tertiary: #b45309;
-    --tertiary-container: #ffedd2;
-    --on-tertiary-container: #7c2d12;
+        /* Tertiary — warm amber */
+        --tertiary: #b45309;
+        --tertiary-container: #ffedd2;
+        --on-tertiary-container: #7c2d12;
 
-    --error: #dc2626;
-    --error-hover: #b91c1c;
-    --error-container: #fee2e2;
-    --on-error-container: #7f1d1d;
+        --error: #dc2626;
+        --error-hover: #b91c1c;
+        --error-container: #fee2e2;
+        --on-error-container: #7f1d1d;
 
-    --success: #16a34a;
-    --success-container: #dcfce7;
-    --on-success-container: #14532d;
-  }
+        --success: #16a34a;
+        --success-container: #dcfce7;
+        --on-success-container: #14532d;
+    }
 
-  .dark {
-    --primary: #b794f6;
-    --primary-hover: #cbb2fb;
-    --primary-container: #4c1d95;
-    --on-primary: #1a0a33;
-    --on-primary-container: #ede9fe;
-    --primary-fixed: #4c1d95;
-    --on-primary-fixed-variant: #ede9fe;
-    --inverse-primary: #7c3aed;
+    .dark {
+        /* Rich deep vibrant purple in dark mode — no pink/lavender wash */
+        --primary: #7c3aed;
+        --primary-hover: #6d28d9;
+        --primary-container: #3c1670;
+        --on-primary: #ffffff;
+        --on-primary-container: #ede9fe;
+        --primary-fixed: #5b21b6;
+        --on-primary-fixed-variant: #ffffff;
+        --inverse-primary: #8b5cf6;
 
-    /* Pure Black Dark Theme, kept per the original design language */
-    --surface: #000000;
-    --surface-container-lowest: #0a0a0a;
-    --surface-container-low: #131113;
-    --surface-container: #1c191f;
-    --surface-container-high: #262229;
-    --surface-container-highest: #302b34;
-    --on-surface: #f5f3f9;
-    --on-surface-variant: #ada6bb;
-    --outline: #7d7690;
-    --outline-variant: #2a2630;
+        /* Pure Black Dark Theme */
+        --surface: #000000;
+        --surface-container-lowest: #0a0a0a;
+        --surface-container-low: #131113;
+        --surface-container: #1c191f;
+        --surface-container-high: #262229;
+        --surface-container-highest: #302b34;
+        --on-surface: #f5f3f9;
+        --on-surface-variant: #ada6bb;
+        --outline: #7d7690;
+        --outline-variant: #2a2630;
 
-    --secondary: #2dd4bf;
-    --secondary-hover: #5eead4;
-    --secondary-container: #0a5c53;
-    --on-secondary-container: #ccfbf1;
+        --secondary: #2dd4bf;
+        --secondary-hover: #5eead4;
+        --secondary-container: #0a5c53;
+        --on-secondary-container: #ccfbf1;
 
-    --tertiary: #fb923c;
-    --tertiary-container: #7c2d12;
-    --on-tertiary-container: #ffedd2;
+        --tertiary: #fb923c;
+        --tertiary-container: #7c2d12;
+        --on-tertiary-container: #ffedd2;
 
-    --error: #f87171;
-    --error-hover: #fca5a5;
-    --error-container: #4c0d0d;
-    --on-error-container: #fecaca;
+        --error: #f87171;
+        --error-hover: #fca5a5;
+        --error-container: #4c0d0d;
+        --on-error-container: #fecaca;
 
-    --success: #4ade80;
-    --success-container: #0f3d20;
-    --on-success-container: #bbf7d0;
-  }
+        --success: #4ade80;
+        --success-container: #0f3d20;
+        --on-success-container: #bbf7d0;
+    }
 
-  body {
-    background-color: var(--surface);
-    color: var(--on-surface);
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
+    body {
+        background-color: var(--surface);
+        color: var(--on-surface);
+        transition:
+            background-color 0.25s ease,
+            color 0.25s ease;
+    }
 
-  ::selection {
-    background-color: var(--primary-fixed);
-    color: var(--on-primary-fixed-variant);
-  }
+    ::selection {
+        background-color: var(--primary-fixed);
+        color: var(--on-primary-fixed-variant);
+    }
+
+    html {
+        scroll-behavior: smooth;
+        height: 100%;
+        overscroll-behavior: none;
+    }
+
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+        transition:
+            opacity 0.7s ease,
+            transform 0.7s ease;
+    }
+
+    [data-reveal].is-visible {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 @theme {
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-container: var(--primary-container);
-  --color-on-primary: var(--on-primary);
-  --color-on-primary-container: var(--on-primary-container);
-  --color-primary-fixed: var(--primary-fixed);
-  --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
-  --color-inverse-primary: var(--inverse-primary);
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-container: var(--primary-container);
+    --color-on-primary: var(--on-primary);
+    --color-on-primary-container: var(--on-primary-container);
+    --color-primary-fixed: var(--primary-fixed);
+    --color-on-primary-fixed-variant: var(--on-primary-fixed-variant);
+    --color-inverse-primary: var(--inverse-primary);
 
-  --color-surface: var(--surface);
-  --color-surface-container-lowest: var(--surface-container-lowest);
-  --color-surface-container-low: var(--surface-container-low);
-  --color-surface-container: var(--surface-container);
-  --color-surface-container-high: var(--surface-container-high);
-  --color-surface-container-highest: var(--surface-container-highest);
-  --color-on-surface: var(--on-surface);
-  --color-on-surface-variant: var(--on-surface-variant);
-  --color-outline: var(--outline);
-  --color-outline-variant: var(--outline-variant);
+    --color-surface: var(--surface);
+    --color-surface-container-lowest: var(--surface-container-lowest);
+    --color-surface-container-low: var(--surface-container-low);
+    --color-surface-container: var(--surface-container);
+    --color-surface-container-high: var(--surface-container-high);
+    --color-surface-container-highest: var(--surface-container-highest);
+    --color-on-surface: var(--on-surface);
+    --color-on-surface-variant: var(--on-surface-variant);
+    --color-outline: var(--outline);
+    --color-outline-variant: var(--outline-variant);
 
-  --color-secondary: var(--secondary);
-  --color-secondary-hover: var(--secondary-hover);
-  --color-secondary-container: var(--secondary-container);
-  --color-on-secondary-container: var(--on-secondary-container);
+    --color-secondary: var(--secondary);
+    --color-secondary-hover: var(--secondary-hover);
+    --color-secondary-container: var(--secondary-container);
+    --color-on-secondary-container: var(--on-secondary-container);
 
-  --color-tertiary: var(--tertiary);
-  --color-tertiary-container: var(--tertiary-container);
-  --color-on-tertiary-container: var(--on-tertiary-container);
+    --color-tertiary: var(--tertiary);
+    --color-tertiary-container: var(--tertiary-container);
+    --color-on-tertiary-container: var(--on-tertiary-container);
 
-  --color-error: var(--error);
-  --color-error-hover: var(--error-hover);
-  --color-error-container: var(--error-container);
-  --color-on-error-container: var(--on-error-container);
+    --color-error: var(--error);
+    --color-error-hover: var(--error-hover);
+    --color-error-container: var(--error-container);
+    --color-on-error-container: var(--on-error-container);
 
-  --color-success: var(--success);
-  --color-success-container: var(--success-container);
-  --color-on-success-container: var(--on-success-container);
+    --color-success: var(--success);
+    --color-success-container: var(--success-container);
+    --color-on-success-container: var(--on-success-container);
+}
+
+/* ────────────────────────────────────────────────────────────────────────── */
+/* Animations & Micro-Interactions                                           */
+/* ────────────────────────────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes floatSlow {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes pulseSubtle {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.85;
+        transform: scale(1.03);
+    }
+}
+
+@keyframes tabPanelIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.99);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(-12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+    animation: floatSlow 4s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+    animation: pulseSubtle 2.5s ease-in-out infinite;
+}
+
+.tab-panel {
+    animation: tabPanelIn 0.28s ease;
+}
+
+.notification-item {
+    animation: toastIn 0.25s ease;
+}
+
+/* Stagger utilities for lists */
+.stagger-1 {
+    animation-delay: 50ms;
+}
+.stagger-2 {
+    animation-delay: 100ms;
+}
+.stagger-3 {
+    animation-delay: 150ms;
+}
+.stagger-4 {
+    animation-delay: 200ms;
 }

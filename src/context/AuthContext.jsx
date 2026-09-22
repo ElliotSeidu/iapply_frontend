@@ -9,6 +9,7 @@ import React, {
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import {
+    API_BASE_URL,
     fetchMe,
     getErrorMessage,
     loginRequest,
@@ -21,49 +22,24 @@ import {
     setAccessToken,
     setRefreshToken,
 } from "../lib/tokenStore";
-import type { User } from "../types/api";
 
-interface JwtPayload {
-    exp: number;
-}
+const AuthContext = createContext(undefined);
 
-interface AuthContextValue {
-    user: User | null;
-    isAuthenticated: boolean;
-    isInitializing: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    register: (payload: {
-        email: string;
-        first_name: string;
-        last_name: string;
-        password: string;
-        password2: string;
-    }) => Promise<void>;
-    logout: () => Promise<void>;
-    refreshUser: () => Promise<void>;
-    setUser: React.Dispatch<React.SetStateAction<User | null>>;
-}
-
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-function isTokenValid(token: string): boolean {
+function isTokenValid(token) {
     try {
-        const { exp } = jwtDecode<JwtPayload>(token);
+        const { exp } = jwtDecode(token);
         return exp * 1000 > Date.now() + 5000; // 5s clock-skew buffer
     } catch {
         return false;
     }
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
+export function AuthProvider({ children }) {
+    const [user, setUser] = useState(null);
     const [isInitializing, setIsInitializing] = useState(true);
     const bootRan = useRef(false);
-
     const logout = useCallback(async () => {
         const refresh = getRefreshToken();
-        clearTokens();
-        setUser(null);
         if (refresh) {
             try {
                 // Best-effort: blacklist the refresh token server-side so a copy that may
@@ -74,6 +50,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 // succeeds regardless.
             }
         }
+        clearTokens();
+        setUser(null);
     }, []);
 
     const refreshUser = useCallback(async () => {
@@ -87,7 +65,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (bootRan.current) return;
         bootRan.current = true;
-
         (async () => {
             const refresh = getRefreshToken();
             if (!refresh || !isTokenValid(refresh)) {
@@ -97,8 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
             try {
                 const { data } = await axios.post(
-                    `${(import.meta as any).env?.VITE_API_BASE_URL || "http://127.0.0.1:8000"}/account/login/refresh/`,
-                    { refresh }
+                    `${API_BASE_URL}/account/login/refresh/`,
+                    {
+                        refresh,
+                    }
                 );
                 setAccessToken(data.access);
                 if (data.refresh) setRefreshToken(data.refresh);
@@ -124,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const login = useCallback(
-        async (email: string, password: string) => {
+        async (email, password) => {
             const data = await loginRequest(email, password);
             setAccessToken(data.access);
             setRefreshToken(data.refresh);
@@ -133,21 +112,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         [refreshUser]
     );
 
-    const register = useCallback(
-        async (payload: {
-            email: string;
-            first_name: string;
-            last_name: string;
-            password: string;
-            password2: string;
-        }) => {
-            // Trigger verification email/code send. Actual account is created on verification.
-            await registerRequest(payload);
-        },
-        [login]
-    );
+    const register = useCallback(async (payload) => {
+        // Trigger verification email/code send. Actual account is created on verification.
+        await registerRequest(payload);
+    }, []);
 
-    const value: AuthContextValue = {
+    const value = {
         user,
         isAuthenticated: !!user,
         isInitializing,
@@ -157,13 +127,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         refreshUser,
         setUser,
     };
-
     return (
         <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
     );
 }
 
-export function useAuth(): AuthContextValue {
+export function useAuth() {
     const ctx = useContext(AuthContext);
     if (!ctx) throw new Error("useAuth must be used within AuthProvider");
     return ctx;

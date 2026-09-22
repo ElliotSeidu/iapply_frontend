@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /account/
+Disallow: /tracker/
+
+# Allow the landing page and static assets
+Allow: /
+
+Sitemap: https://iapply.app/sitemap.xml

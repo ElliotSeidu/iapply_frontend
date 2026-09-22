@@ -1,34 +1,39 @@
 {
-  "name": "iapply-frontend",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview",
-    "lint": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@hookform/resolvers": "^3.9.1",
-    "@tailwindcss/vite": "^4.1.14",
-    "axios": "^1.7.9",
-    "jwt-decode": "^4.0.0",
-    "lucide-react": "^0.546.0",
-    "react": "^19.0.1",
-    "react-dom": "^19.0.1",
-    "react-hook-form": "^7.54.2",
-    "recharts": "^3.10.1",
-    "zod": "3.23.8"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^5.0.4",
-    "autoprefixer": "^10.4.21",
-    "tailwindcss": "^4.1.14",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.3"
-  }
+    "name": "iapply-frontend",
+    "private": true,
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite --port=3000 --host=0.0.0.0",
+        "build": "vite build",
+        "preview": "vite preview",
+        "lint": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@hookform/resolvers": "^3.9.1",
+        "@tailwindcss/vite": "^4.1.14",
+        "axios": "^1.7.9",
+        "framer-motion": "^13.4.0",
+        "jwt-decode": "^4.0.0",
+        "lucide-react": "^0.546.0",
+        "react": "^19.0.1",
+        "react-dom": "^19.0.1",
+        "react-hook-form": "^7.54.2",
+        "react-is": "^19.0.0",
+        "react-router-dom": "^7.18.3",
+        "recharts": "^3.10.1",
+        "vite-plugin-pwa": "^1.3.0",
+        "workbox-window": "^7.4.1",
+        "zod": "3.23.8"
+    },
+    "devDependencies": {
+        "@babel/cli": "^7.29.7",
+        "@babel/core": "^7.29.7",
+        "@babel/preset-react": "^7.29.7",
+        "@babel/preset-typescript": "^7.29.7",
+        "@vitejs/plugin-react": "^5.0.4",
+        "autoprefixer": "^10.4.21",
+        "tailwindcss": "^4.1.14",
+        "vite": "^6.2.3"
+    }
 }
