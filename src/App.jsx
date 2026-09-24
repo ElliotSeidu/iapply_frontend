@@ -42,11 +42,23 @@ const VALID_TABS = [
     "settings",
 ];
 
+function isInstalledApp() {
+    return (
+        window.matchMedia?.("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true ||
+        document.referrer.startsWith("android-app://")
+    );
+}
+
 // Page transition variants
 const pageVariants = {
     initial: { opacity: 0, y: 14 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] } },
-    exit:    { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
+    animate: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] },
+    },
+    exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: "easeIn" } },
 };
 
 function useDarkMode() {
@@ -79,7 +91,7 @@ function AppShell() {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isDarkMode, toggleDarkMode] = useDarkMode();
-    const [authModalOpen, setAuthModalOpen] = useState(false);
+    const [authModalOpen, setAuthModalOpen] = useState(isInstalledApp);
     const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
     const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
     const [applicationModalOpen, setApplicationModalOpen] = useState(false);
@@ -145,11 +157,15 @@ function AppShell() {
             >
                 {!isAuthenticated ? (
                     <>
-                        <LandingPage
-                            onOpenAuth={() => setAuthModalOpen(true)}
-                            onOpenLegal={handleOpenLegal}
-                        />
-                        <Footer onOpenLegal={handleOpenLegal} />
+                        {!authModalOpen && (
+                            <>
+                                <LandingPage
+                                    onOpenAuth={() => setAuthModalOpen(true)}
+                                    onOpenLegal={handleOpenLegal}
+                                />
+                                <Footer onOpenLegal={handleOpenLegal} />
+                            </>
+                        )}
                     </>
                 ) : (
                     <>
@@ -166,7 +182,9 @@ function AppShell() {
                             <Routes location={location} key={location.pathname}>
                                 <Route
                                     path="/"
-                                    element={<Navigate to="/dashboard" replace />}
+                                    element={
+                                        <Navigate to="/dashboard" replace />
+                                    }
                                 />
                                 <Route
                                     path="/dashboard"
@@ -178,9 +196,17 @@ function AppShell() {
                                             exit="exit"
                                         >
                                             <DashboardView
-                                                onSelectApplication={handleSelectApplicationToView}
-                                                onOpenAddModal={() => handleOpenAddModal("applied")}
-                                                onNavigateTab={(tab) => navigate(`/${tab}`)}
+                                                onSelectApplication={
+                                                    handleSelectApplicationToView
+                                                }
+                                                onOpenAddModal={() =>
+                                                    handleOpenAddModal(
+                                                        "applied"
+                                                    )
+                                                }
+                                                onNavigateTab={(tab) =>
+                                                    navigate(`/${tab}`)
+                                                }
                                                 searchQuery={searchQuery}
                                             />
                                         </motion.div>
@@ -196,8 +222,12 @@ function AppShell() {
                                             exit="exit"
                                         >
                                             <BoardView
-                                                onSelectApplication={handleSelectApplicationToView}
-                                                onOpenAddModal={handleOpenAddModal}
+                                                onSelectApplication={
+                                                    handleSelectApplicationToView
+                                                }
+                                                onOpenAddModal={
+                                                    handleOpenAddModal
+                                                }
                                                 searchQuery={searchQuery}
                                             />
                                         </motion.div>
@@ -213,8 +243,14 @@ function AppShell() {
                                             exit="exit"
                                         >
                                             <ApplicationsView
-                                                onSelectApplication={handleSelectApplicationToView}
-                                                onOpenAddModal={() => handleOpenAddModal("applied")}
+                                                onSelectApplication={
+                                                    handleSelectApplicationToView
+                                                }
+                                                onOpenAddModal={() =>
+                                                    handleOpenAddModal(
+                                                        "applied"
+                                                    )
+                                                }
                                                 searchQuery={searchQuery}
                                                 setSearchQuery={setSearchQuery}
                                             />
@@ -245,8 +281,12 @@ function AppShell() {
                                         >
                                             <SettingsView
                                                 isDarkMode={isDarkMode}
-                                                onToggleDarkMode={toggleDarkMode}
-                                                onLogout={() => setLogoutConfirmOpen(true)}
+                                                onToggleDarkMode={
+                                                    toggleDarkMode
+                                                }
+                                                onLogout={() =>
+                                                    setLogoutConfirmOpen(true)
+                                                }
                                                 onOpenLegal={handleOpenLegal}
                                             />
                                         </motion.div>
@@ -275,7 +315,9 @@ function AppShell() {
                                 className={`flex flex-col items-center justify-center px-3 py-1 rounded-full transition-all cursor-pointer ${activeTab === id ? "bg-primary-container text-on-primary-container font-bold" : "text-on-surface-variant"}`}
                             >
                                 <Icon className="w-5 h-5" />
-                                <span className="text-[10px] font-medium">{label}</span>
+                                <span className="text-[10px] font-medium">
+                                    {label}
+                                </span>
                             </button>
                         ))}
                     </nav>

@@ -158,6 +158,21 @@ export async function loginRequest(email, password) {
     return data;
 }
 
+export async function requestPasswordReset(email) {
+    const { data } = await api.post("/account/password-reset/request/", {
+        email,
+    });
+    return data;
+}
+
+export async function confirmPasswordReset(payload) {
+    const { data } = await api.post(
+        "/account/password-reset/confirm/",
+        payload
+    );
+    return data;
+}
+
 export async function fetchMe() {
     const { data } = await api.get("/account/profile/");
     return data;

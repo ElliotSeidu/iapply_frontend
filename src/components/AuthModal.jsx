@@ -15,11 +15,21 @@ import {
     ArrowRight,
     CheckCircle2,
 } from "lucide-react";
-import { loginSchema, registerSchema } from "../schemas/auth";
+import {
+    loginSchema,
+    passwordResetRequestSchema,
+    passwordResetSchema,
+    registerSchema,
+} from "../schemas/auth";
 import { getPasswordStrength } from "../utils/validation";
 import { FormField, inputClass } from "./ui/FormField";
 import { useAuth } from "../context/AuthContext";
-import { getErrorMessage, verifyRegisterRequest } from "../lib/api";
+import {
+    confirmPasswordReset,
+    getErrorMessage,
+    requestPasswordReset,
+    verifyRegisterRequest,
+} from "../lib/api";
 import { setAccessToken, setRefreshToken } from "../lib/tokenStore";
 
 // ─── Password strength bar (4 segments) ─────────────────────────────────────
@@ -111,6 +121,9 @@ export const AuthModal = ({ isOpen, onClose }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [serverError, setServerError] = useState(null);
+    const [resetStep, setResetStep] = useState(null);
+    const [resetEmail, setResetEmail] = useState("");
+    const [resetCode, setResetCode] = useState("");
 
     const loginForm = useForm({
         resolver: zodResolver(loginSchema),
@@ -122,16 +135,98 @@ export const AuthModal = ({ isOpen, onClose }) => {
         mode: "onBlur",
     });
 
+    const resetRequestForm = useForm({
+        resolver: zodResolver(passwordResetRequestSchema),
+        mode: "onBlur",
+    });
+
+    const resetPasswordForm = useForm({
+        resolver: zodResolver(passwordResetSchema),
+        mode: "onBlur",
+    });
+
     if (!isOpen) return null;
     const watchedPassword = registerForm.watch("password") || "";
     const passwordStrength = getPasswordStrength(watchedPassword);
 
     const switchMode = (next) => {
         setMode(next);
+        setResetStep(null);
+        setResetCode("");
         setServerError(null);
         loginForm.clearErrors();
         registerForm.clearErrors();
+        resetRequestForm.clearErrors();
+        resetPasswordForm.clearErrors();
     };
+
+    const startPasswordReset = () => {
+        setServerError(null);
+        setResetStep("request");
+        resetRequestForm.reset({ email: loginForm.getValues("email") || "" });
+    };
+
+    const onResetRequestSubmit = resetRequestForm.handleSubmit(
+        async (values) => {
+            setServerError(null);
+            try {
+                await requestPasswordReset(values.email);
+                setResetEmail(values.email.trim().toLowerCase());
+                setResetStep("code");
+            } catch (err) {
+                setServerError(
+                    getErrorMessage(
+                        err,
+                        "Could not send a reset code. Please try again."
+                    )
+                );
+            }
+        }
+    );
+
+    const onResetCodeSubmit = () => {
+        if (resetCode.length < 6) {
+            setServerError("Enter the 6-digit code from your email.");
+            return;
+        }
+        setServerError(null);
+        setResetStep("password");
+    };
+
+    const onResetPasswordSubmit = resetPasswordForm.handleSubmit(
+        async (values) => {
+            setServerError(null);
+            try {
+                await confirmPasswordReset({
+                    email: resetEmail,
+                    code: resetCode,
+                    password: values.password,
+                    password2: values.password2,
+                });
+                loginForm.setValue("email", resetEmail, {
+                    shouldValidate: true,
+                });
+                resetPasswordForm.reset();
+                setResetCode("");
+                setResetStep(null);
+                setServerError(null);
+                window.setTimeout(
+                    () =>
+                        setServerError(
+                            "Password updated. Sign in with your new password."
+                        ),
+                    0
+                );
+            } catch (err) {
+                setServerError(
+                    getErrorMessage(
+                        err,
+                        "Could not reset your password. Please try again."
+                    )
+                );
+            }
+        }
+    );
 
     const onLoginSubmit = loginForm.handleSubmit(async (values) => {
         setServerError(null);
@@ -187,9 +282,13 @@ export const AuthModal = ({ isOpen, onClose }) => {
     };
 
     const isSubmitting =
-        mode === "login"
-            ? loginForm.formState.isSubmitting
-            : registerForm.formState.isSubmitting;
+        resetStep === "request"
+            ? resetRequestForm.formState.isSubmitting
+            : resetStep === "password"
+              ? resetPasswordForm.formState.isSubmitting
+              : mode === "login"
+                ? loginForm.formState.isSubmitting
+                : registerForm.formState.isSubmitting;
 
     // Helper: is field touched + dirty + no error
     const lf = loginForm.formState;
@@ -209,7 +308,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
             watchedPassword.length > 0,
         password2: rf.touchedFields.password2 && !rf.errors.password2,
     };
-    
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 animate-fade-in">
             <div className="relative w-full max-w-xl bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant/30 overflow-hidden max-h-[95vh] flex animate-scale-in">
@@ -267,7 +366,245 @@ export const AuthModal = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* ── SIGN IN FORM ──────────────────────────────────────────────────── */}
-                    {mode === "login" ? (
+                    {mode === "login" && resetStep === "request" ? (
+                        <form
+                            onSubmit={onResetRequestSubmit}
+                            className="p-6 space-y-4 overflow-y-auto flex-1"
+                            noValidate
+                        >
+                            <div className="mb-2">
+                                <h2 className="text-base font-bold text-on-surface">
+                                    Reset your password
+                                </h2>
+                                <p className="text-xs text-on-surface-variant mt-0.5">
+                                    Enter your email and we will send you a
+                                    reset code.
+                                </p>
+                            </div>
+                            {serverError && (
+                                <div className="p-3 bg-error-container text-on-error-container rounded-xl text-xs font-medium flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>{serverError}</span>
+                                </div>
+                            )}
+                            <FormField
+                                label="Email Address"
+                                required
+                                icon={<Mail className="w-4 h-4" />}
+                                error={
+                                    resetRequestForm.formState.errors.email
+                                        ?.message
+                                }
+                            >
+                                <input
+                                    type="email"
+                                    autoComplete="email"
+                                    placeholder="alex@example.com"
+                                    className={inputClass(
+                                        !!resetRequestForm.formState.errors
+                                            .email,
+                                        true
+                                    )}
+                                    {...resetRequestForm.register("email")}
+                                />
+                            </FormField>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                            >
+                                {isSubmitting ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Mail className="w-4 h-4" />
+                                )}
+                                {isSubmitting
+                                    ? "Sending code…"
+                                    : "Send reset code"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setResetStep(null)}
+                                className="w-full py-2.5 text-sm text-on-surface-variant hover:text-on-surface border border-outline-variant rounded-xl"
+                            >
+                                Back to sign in
+                            </button>
+                        </form>
+                    ) : mode === "login" && resetStep === "code" ? (
+                        <div className="p-6 space-y-5 overflow-y-auto flex-1">
+                            <div className="flex flex-col items-center text-center gap-3 pt-2">
+                                <div className="w-14 h-14 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center shadow-sm">
+                                    <KeyRound className="w-7 h-7" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base font-bold text-on-surface">
+                                        Check your inbox
+                                    </h2>
+                                    <p className="text-xs text-on-surface-variant mt-1 max-w-[260px] mx-auto leading-relaxed">
+                                        Enter the 6-digit code sent to{" "}
+                                        <span className="font-semibold text-on-surface">
+                                            {resetEmail}
+                                        </span>
+                                        .
+                                    </p>
+                                </div>
+                            </div>
+                            <FormField
+                                label="Reset Code"
+                                required
+                                icon={<Mail className="w-4 h-4" />}
+                                error={undefined}
+                            >
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength={6}
+                                    placeholder="123456"
+                                    className={`${inputClass(false)} text-center tracking-[0.3em] text-lg font-bold`}
+                                    value={resetCode}
+                                    onChange={(e) =>
+                                        setResetCode(
+                                            e.target.value.replace(/\D/g, "")
+                                        )
+                                    }
+                                />
+                            </FormField>
+                            {serverError && (
+                                <div className="p-3 bg-error-container text-on-error-container rounded-xl text-xs font-medium flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>{serverError}</span>
+                                </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={onResetCodeSubmit}
+                                disabled={resetCode.length < 6}
+                                className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                <CheckCircle2 className="w-4 h-4" />
+                                Verify code
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setResetStep("request")}
+                                className="w-full py-2.5 text-sm text-on-surface-variant hover:text-on-surface border border-outline-variant rounded-xl"
+                            >
+                                Request a new code
+                            </button>
+                        </div>
+                    ) : mode === "login" && resetStep === "password" ? (
+                        <form
+                            onSubmit={onResetPasswordSubmit}
+                            className="p-6 space-y-4 overflow-y-auto flex-1"
+                            noValidate
+                        >
+                            <div className="mb-2">
+                                <h2 className="text-base font-bold text-on-surface">
+                                    Choose a new password
+                                </h2>
+                                <p className="text-xs text-on-surface-variant mt-0.5">
+                                    Create your new password, then sign in
+                                    again.
+                                </p>
+                            </div>
+                            {serverError && (
+                                <div className="p-3 bg-error-container text-on-error-container rounded-xl text-xs font-medium flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>{serverError}</span>
+                                </div>
+                            )}
+                            <FormField
+                                label="New Password"
+                                required
+                                icon={<Lock className="w-4 h-4" />}
+                                error={
+                                    resetPasswordForm.formState.errors.password
+                                        ?.message
+                                }
+                            >
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    autoComplete="new-password"
+                                    placeholder="••••••••••••"
+                                    className={inputClass(
+                                        !!resetPasswordForm.formState.errors
+                                            .password,
+                                        true
+                                    )}
+                                    {...resetPasswordForm.register("password")}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((v) => !v)}
+                                    className="absolute right-8 top-2.5 text-outline hover:text-on-surface"
+                                    tabIndex={-1}
+                                    aria-label={
+                                        showPassword
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="w-4 h-4" />
+                                    ) : (
+                                        <Eye className="w-4 h-4" />
+                                    )}
+                                </button>
+                            </FormField>
+                            <FormField
+                                label="Confirm New Password"
+                                required
+                                icon={<Lock className="w-4 h-4" />}
+                                error={
+                                    resetPasswordForm.formState.errors.password2
+                                        ?.message
+                                }
+                            >
+                                <input
+                                    type={showConfirm ? "text" : "password"}
+                                    autoComplete="new-password"
+                                    placeholder="••••••••••••"
+                                    className={inputClass(
+                                        !!resetPasswordForm.formState.errors
+                                            .password2,
+                                        true
+                                    )}
+                                    {...resetPasswordForm.register("password2")}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirm((v) => !v)}
+                                    className="absolute right-8 top-2.5 text-outline hover:text-on-surface"
+                                    tabIndex={-1}
+                                    aria-label={
+                                        showConfirm
+                                            ? "Hide password"
+                                            : "Show password"
+                                    }
+                                >
+                                    {showConfirm ? (
+                                        <EyeOff className="w-4 h-4" />
+                                    ) : (
+                                        <Eye className="w-4 h-4" />
+                                    )}
+                                </button>
+                            </FormField>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+                            >
+                                {isSubmitting ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <ArrowRight className="w-4 h-4" />
+                                )}
+                                {isSubmitting
+                                    ? "Updating password…"
+                                    : "Update password"}
+                            </button>
+                        </form>
+                    ) : mode === "login" ? (
                         <form
                             onSubmit={onLoginSubmit}
                             className="p-6 space-y-4 overflow-y-auto flex-1"
@@ -359,6 +696,14 @@ export const AuthModal = ({ isOpen, onClose }) => {
                                 {isSubmitting
                                     ? "Signing in…"
                                     : "Sign In Securely"}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={startPasswordReset}
+                                className="w-full text-xs text-primary font-semibold hover:underline"
+                            >
+                                Forgot your password?
                             </button>
 
                             <p className="text-center text-xs text-on-surface-variant pt-1">

@@ -22,6 +22,24 @@ export const loginSchema = z.object({
     password: z.string().min(1, "Password is required"),
 });
 
+export const passwordResetRequestSchema = z.object({
+    email: z
+        .string()
+        .trim()
+        .min(1, "Email is required")
+        .email("Enter a valid email address"),
+});
+
+export const passwordResetSchema = z
+    .object({
+        password: passwordField,
+        password2: z.string().min(1, "Please confirm your new password"),
+    })
+    .refine((data) => data.password === data.password2, {
+        message: "Passwords don't match",
+        path: ["password2"],
+    });
+
 export const registerSchema = z
     .object({
         first_name: z.string().trim().min(1, "First name is required").max(150),
