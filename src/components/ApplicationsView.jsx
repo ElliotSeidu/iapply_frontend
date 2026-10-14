@@ -9,6 +9,7 @@ import {
     Briefcase,
 } from "lucide-react";
 import { useData } from "../context/DataContext";
+import { getErrorMessage } from "../lib/api";
 import { CHANNEL_LABELS, STATUS_LABELS, STATUS_ORDER } from "../types/api";
 
 const STATUS_BADGE = {
@@ -50,6 +51,8 @@ export const ApplicationsView = ({
         }
         try {
             await removeApplication(id);
+        } catch (error) {
+            alert(getErrorMessage(error, "Failed to delete application."));
         } finally {
             setPendingDeleteId(null);
         }

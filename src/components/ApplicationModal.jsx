@@ -19,8 +19,6 @@ import {
     DollarSign,
     Pencil,
     ArrowLeft,
-    MapPin,
-    Hash,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { applicationSchema } from "../schemas/application";
@@ -114,13 +112,15 @@ export const ApplicationModal = ({
             work_model: "",
             job_type: "",
             monthly_salary: "",
-            date_applied: new Date().toISOString().slice(0, 10),
+            date_applied: new Date().toLocaleDateString("en-CA"),
             resume_version: "",
             notes: "",
         },
     });
 
     useEffect(() => {
+        if (!isOpen) return;
+
         if (applicationToEdit) {
             reset({
                 company_name: applicationToEdit.company_name,
@@ -145,7 +145,7 @@ export const ApplicationModal = ({
                 work_model: "",
                 job_type: "",
                 monthly_salary: "",
-                date_applied: new Date().toISOString().slice(0, 10),
+                date_applied: new Date().toLocaleDateString("en-CA"),
                 resume_version: "",
                 notes: "",
             });
@@ -155,7 +155,9 @@ export const ApplicationModal = ({
         setServerError(null);
         setConfirmDelete(false);
         setNewStatus(initialStatus);
-    }, [applicationToEdit, isOpen, reset, initialStatus]);
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [applicationToEdit?.id, isOpen, reset, initialStatus]);
 
     if (!isOpen) return null;
 

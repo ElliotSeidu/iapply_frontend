@@ -118,6 +118,7 @@ export const BoardView = ({
                     return (
                         <div
                             key={status}
+                            data-column={status}
                             onDragOver={(e) => {
                                 e.preventDefault();
                                 setDragOverColumn(status);
@@ -142,11 +143,27 @@ export const BoardView = ({
                                     <div
                                         key={app.id}
                                         draggable
-                                        onDragStart={() =>
-                                            setDraggingId(app.id)
-                                        }
+                                        onDragStart={() => setDraggingId(app.id)}
+                                        onTouchStart={() => setDraggingId(app.id)}
+                                        onTouchMove={(e) => {
+                                            const touch = e.touches[0];
+                                            const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                                            const col = element?.closest('[data-column]');
+                                            if (col) {
+                                                setDragOverColumn(col.getAttribute('data-column'));
+                                            } else {
+                                                setDragOverColumn(null);
+                                            }
+                                        }}
+                                        onTouchEnd={() => {
+                                            if (dragOverColumn) {
+                                                handleDrop(dragOverColumn);
+                                            } else {
+                                                setDraggingId(null);
+                                            }
+                                        }}
                                         onClick={() => onSelectApplication(app)}
-                                        className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-outline-variant/20 cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group"
+                                        className="bg-surface-container-lowest rounded-xl p-3.5 shadow-xs border border-outline-variant/20 cursor-grab active:cursor-grabbing hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group touch-none"
                                     >
                                         <div className="flex items-start gap-2.5">
                                             <div className="w-8 h-8 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">

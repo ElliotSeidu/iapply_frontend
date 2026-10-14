@@ -52,6 +52,13 @@ export function AuthProvider({ children }) {
         }
         clearTokens();
         setUser(null);
+        if ("caches" in window) {
+            caches.keys().then(names => {
+                for (let name of names) {
+                    caches.delete(name);
+                }
+            });
+        }
     }, []);
 
     const refreshUser = useCallback(async () => {

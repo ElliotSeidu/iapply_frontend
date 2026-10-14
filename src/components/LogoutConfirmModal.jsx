@@ -1,5 +1,5 @@
 import React from "react";
-import { LogOut, X, AlertTriangle, Loader2 } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
 
 export const LogoutConfirmModal = ({ isOpen, onClose, onConfirm }) => {
     const [isLoggingOut, setIsLoggingOut] = React.useState(false);

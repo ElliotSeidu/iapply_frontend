@@ -1,5 +1,5 @@
 import React from "react";
-import { ShieldCheck, Heart, Lock, FileText, Cookie } from "lucide-react";
+import { ShieldCheck, Lock, FileText, Cookie } from "lucide-react";
 
 export const Footer = ({ onOpenLegal }) => {
     const currentYear = new Date().getFullYear();

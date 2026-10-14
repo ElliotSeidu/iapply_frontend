@@ -112,7 +112,7 @@ function BrandPanel() {
     );
 }
 
-export const AuthModal = ({ isOpen, onClose }) => {
+export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
     const { login, register: registerUser, refreshUser } = useAuth();
     const [awaitingVerification, setAwaitingVerification] = useState(false);
     const [verificationEmail, setVerificationEmail] = useState(null);
@@ -322,13 +322,15 @@ export const AuthModal = ({ isOpen, onClose }) => {
                         <div className="absolute inset-0 bg-gradient-to-br from-[#2b0a4d] via-[#4c1d95] to-[#1a0533]" />
                         <div className="absolute -top-8 -right-8 w-28 h-28 rounded-full bg-[#c084fc] opacity-25 blur-3xl mix-blend-screen pointer-events-none" />
 
-                        <button
-                            onClick={onClose}
-                            className="absolute top-3 right-3 z-10 p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors"
-                            aria-label="Close"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
+                        {!hideClose && (
+                            <button
+                                onClick={onClose}
+                                className="absolute top-3 right-3 z-10 p-1.5 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-colors"
+                                aria-label="Close"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        )}
                         <div className="relative z-10 flex items-center gap-2">
                             <ShieldCheck className="w-5 h-5 text-[#c084fc]" />
                             <span className="font-display italic text-xl font-bold text-white drop-shadow-sm">
@@ -343,13 +345,15 @@ export const AuthModal = ({ isOpen, onClose }) => {
                     </div>
 
                     {/* Desktop close button */}
-                    <button
-                        onClick={onClose}
-                        className="hidden sm:flex absolute top-3 right-3 p-1.5 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors z-10"
-                        aria-label="Close modal"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
+                    {!hideClose && (
+                        <button
+                            onClick={onClose}
+                            className="hidden sm:flex absolute top-3 right-3 p-1.5 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors z-10 cursor-pointer"
+                            aria-label="Close modal"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    )}
 
                     {/* Tab switcher */}
                     <div className="flex border-b border-outline-variant/30 bg-surface-container-low shrink-0">
@@ -358,7 +362,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                                 key={m}
                                 type="button"
                                 onClick={() => switchMode(m)}
-                                className={`flex-1 py-3 text-sm font-semibold transition-all border-b-2 ${mode === m ? "border-primary text-primary bg-surface-container-lowest" : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50"}`}
+                                className={`flex-1 py-3 text-sm font-semibold transition-all border-b-2 ${mode === m ? "border-primary text-primary bg-surface-container-lowest" : "border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low/50 cursor-pointer"}`}
                             >
                                 {m === "login" ? "Sign In" : "Create Account"}
                             </button>
@@ -686,7 +690,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full mt-2 py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="w-full mt-2 py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {isSubmitting ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -701,7 +705,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                             <button
                                 type="button"
                                 onClick={startPasswordReset}
-                                className="w-full text-xs text-primary font-semibold hover:underline"
+                                className="w-full text-xs text-primary font-semibold hover:underline cursor-pointer"
                             >
                                 Forgot your password?
                             </button>
@@ -711,7 +715,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                                 <button
                                     type="button"
                                     onClick={() => switchMode("register")}
-                                    className="text-primary font-semibold hover:underline"
+                                    className="text-primary font-semibold hover:underline cursor-pointer"
                                 >
                                     Create one free
                                 </button>
@@ -934,7 +938,7 @@ export const AuthModal = ({ isOpen, onClose }) => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {isSubmitting ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />

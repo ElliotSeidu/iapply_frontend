@@ -7,6 +7,7 @@ import {
     Settings as SettingsIcon,
     Plus,
     Loader2,
+    AlertCircle,
 } from "lucide-react";
 import {
     BrowserRouter as Router,
@@ -20,11 +21,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { DataProvider, useData } from "./context/DataContext";
 import { Header } from "./components/Header";
-import { DashboardView } from "./components/DashboardView";
-import { BoardView } from "./components/BoardView";
-import { ApplicationsView } from "./components/ApplicationsView";
-import { AnalyticsView } from "./components/AnalyticsView";
-import { SettingsView } from "./components/SettingsView";
 import { AuthModal } from "./components/AuthModal";
 import { ApplicationModal } from "./components/ApplicationModal";
 import { NotificationDrawer } from "./components/NotificationDrawer";
@@ -34,13 +30,43 @@ import { LegalModal } from "./components/LegalModal";
 import { LogoutConfirmModal } from "./components/LogoutConfirmModal";
 import ScrollToTop from "./components/ScrollToTop";
 
-const VALID_TABS = [
-    "dashboard",
-    "board",
-    "applications",
-    "analytics",
-    "settings",
-];
+// M1 Fix: Code-split heavy views to reduce initial bundle size
+const DashboardView = React.lazy(() => import('./components/DashboardView').then(m => ({ default: m.DashboardView })));
+const BoardView = React.lazy(() => import('./components/BoardView').then(m => ({ default: m.BoardView })));
+const ApplicationsView = React.lazy(() => import('./components/ApplicationsView').then(m => ({ default: m.ApplicationsView })));
+const AnalyticsView = React.lazy(() => import('./components/AnalyticsView').then(m => ({ default: m.AnalyticsView })));
+const SettingsView = React.lazy(() => import('./components/SettingsView').then(m => ({ default: m.SettingsView })));
+
+// H7 Fix: Top-level error boundary
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+    componentDidCatch(error, errorInfo) {
+        console.error("UI Error Caught by Boundary:", error, errorInfo);
+    }
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-surface p-4">
+                    <div className="text-center p-8 bg-surface-container-low rounded-2xl border border-error/20 max-w-md w-full">
+                        <AlertCircle className="w-12 h-12 text-error mx-auto mb-4" />
+                        <h1 className="text-xl font-bold text-on-surface mb-2">Something went wrong</h1>
+                        <p className="text-sm text-on-surface-variant mb-6">An unexpected error crashed the application.</p>
+                        <button onClick={() => window.location.reload()} className="px-6 py-2 bg-primary text-on-primary rounded-xl font-bold shadow-md">
+                            Reload Application
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+        return this.props.children;
+    }
+}
 
 function isInstalledApp() {
     return (
@@ -91,7 +117,8 @@ function AppShell() {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [isDarkMode, toggleDarkMode] = useDarkMode();
-    const [authModalOpen, setAuthModalOpen] = useState(isInstalledApp);
+    const isStandalone = isInstalledApp();
+    const [authModalOpen, setAuthModalOpen] = useState(isStandalone);
     const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
     const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
     const [applicationModalOpen, setApplicationModalOpen] = useState(false);
@@ -156,8 +183,8 @@ function AppShell() {
                 className={`flex-1 w-full ${isAuthenticated ? "max-w-[1440px] mx-auto px-4 md:px-10 py-6" : ""}`}
             >
                 {!isAuthenticated ? (
-                    <>
-                        {!authModalOpen && (
+                    isStandalone ? null : (
+                        !authModalOpen && (
                             <>
                                 <LandingPage
                                     onOpenAuth={() => setAuthModalOpen(true)}
@@ -165,8 +192,8 @@ function AppShell() {
                                 />
                                 <Footer onOpenLegal={handleOpenLegal} />
                             </>
-                        )}
-                    </>
+                        )
+                    )
                 ) : (
                     <>
                         {error && (
@@ -179,120 +206,134 @@ function AppShell() {
                             </motion.div>
                         )}
                         <AnimatePresence mode="wait">
-                            <Routes location={location} key={location.pathname}>
-                                <Route
-                                    path="/"
-                                    element={
-                                        <Navigate to="/dashboard" replace />
-                                    }
-                                />
-                                <Route
-                                    path="/dashboard"
-                                    element={
-                                        <motion.div
-                                            variants={pageVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                        >
-                                            <DashboardView
-                                                onSelectApplication={
-                                                    handleSelectApplicationToView
-                                                }
-                                                onOpenAddModal={() =>
-                                                    handleOpenAddModal(
-                                                        "applied"
-                                                    )
-                                                }
-                                                onNavigateTab={(tab) =>
-                                                    navigate(`/${tab}`)
-                                                }
-                                                searchQuery={searchQuery}
-                                            />
-                                        </motion.div>
-                                    }
-                                />
-                                <Route
-                                    path="/board"
-                                    element={
-                                        <motion.div
-                                            variants={pageVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                        >
-                                            <BoardView
-                                                onSelectApplication={
-                                                    handleSelectApplicationToView
-                                                }
-                                                onOpenAddModal={
-                                                    handleOpenAddModal
-                                                }
-                                                searchQuery={searchQuery}
-                                            />
-                                        </motion.div>
-                                    }
-                                />
-                                <Route
-                                    path="/applications"
-                                    element={
-                                        <motion.div
-                                            variants={pageVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                        >
-                                            <ApplicationsView
-                                                onSelectApplication={
-                                                    handleSelectApplicationToView
-                                                }
-                                                onOpenAddModal={() =>
-                                                    handleOpenAddModal(
-                                                        "applied"
-                                                    )
-                                                }
-                                                searchQuery={searchQuery}
-                                                setSearchQuery={setSearchQuery}
-                                            />
-                                        </motion.div>
-                                    }
-                                />
-                                <Route
-                                    path="/analytics"
-                                    element={
-                                        <motion.div
-                                            variants={pageVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                        >
-                                            <AnalyticsView />
-                                        </motion.div>
-                                    }
-                                />
-                                <Route
-                                    path="/settings"
-                                    element={
-                                        <motion.div
-                                            variants={pageVariants}
-                                            initial="initial"
-                                            animate="animate"
-                                            exit="exit"
-                                        >
-                                            <SettingsView
-                                                isDarkMode={isDarkMode}
-                                                onToggleDarkMode={
-                                                    toggleDarkMode
-                                                }
-                                                onLogout={() =>
-                                                    setLogoutConfirmOpen(true)
-                                                }
-                                                onOpenLegal={handleOpenLegal}
-                                            />
-                                        </motion.div>
-                                    }
-                                />
-                            </Routes>
+                            <React.Suspense fallback={<div className="flex-1 flex items-center justify-center min-h-[50vh]"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+                                <Routes location={location} key={location.pathname}>
+                                    <Route
+                                        path="/"
+                                        element={
+                                            <Navigate to="/dashboard" replace />
+                                        }
+                                    />
+                                    <Route
+                                        path="/dashboard"
+                                        element={
+                                            <motion.div
+                                                variants={pageVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                            >
+                                                <DashboardView
+                                                    onSelectApplication={
+                                                        handleSelectApplicationToView
+                                                    }
+                                                    onOpenAddModal={() =>
+                                                        handleOpenAddModal(
+                                                            "applied"
+                                                        )
+                                                    }
+                                                    onNavigateTab={(tab) =>
+                                                        navigate(`/${tab}`)
+                                                    }
+                                                    searchQuery={searchQuery}
+                                                />
+                                            </motion.div>
+                                        }
+                                    />
+                                    <Route
+                                        path="/board"
+                                        element={
+                                            <motion.div
+                                                variants={pageVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                            >
+                                                <BoardView
+                                                    onSelectApplication={
+                                                        handleSelectApplicationToView
+                                                    }
+                                                    onOpenAddModal={
+                                                        handleOpenAddModal
+                                                    }
+                                                    searchQuery={searchQuery}
+                                                />
+                                            </motion.div>
+                                        }
+                                    />
+                                    <Route
+                                        path="/applications"
+                                        element={
+                                            <motion.div
+                                                variants={pageVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                            >
+                                                <ApplicationsView
+                                                    onSelectApplication={
+                                                        handleSelectApplicationToView
+                                                    }
+                                                    onOpenAddModal={() =>
+                                                        handleOpenAddModal(
+                                                            "applied"
+                                                        )
+                                                    }
+                                                    searchQuery={searchQuery}
+                                                    setSearchQuery={setSearchQuery}
+                                                />
+                                            </motion.div>
+                                        }
+                                    />
+                                    <Route
+                                        path="/analytics"
+                                        element={
+                                            <motion.div
+                                                variants={pageVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                            >
+                                                <AnalyticsView />
+                                            </motion.div>
+                                        }
+                                    />
+                                    <Route
+                                        path="/settings"
+                                        element={
+                                            <motion.div
+                                                variants={pageVariants}
+                                                initial="initial"
+                                                animate="animate"
+                                                exit="exit"
+                                            >
+                                                <SettingsView
+                                                    isDarkMode={isDarkMode}
+                                                    onToggleDarkMode={
+                                                        toggleDarkMode
+                                                    }
+                                                    onLogout={() =>
+                                                        setLogoutConfirmOpen(true)
+                                                    }
+                                                    onOpenLegal={handleOpenLegal}
+                                                />
+                                            </motion.div>
+                                        }
+                                    />
+                                    <Route path="*" element={
+                                        <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-in">
+                                            <div className="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center mb-4">
+                                                <AlertCircle className="w-8 h-8 text-on-surface-variant" />
+                                            </div>
+                                            <h2 className="text-2xl font-bold text-on-surface mb-2">Page Not Found</h2>
+                                            <p className="text-on-surface-variant mb-6 max-w-sm">The page you're looking for doesn't exist or has been moved.</p>
+                                            <button onClick={() => navigate("/dashboard")} className="px-6 py-2 bg-primary text-on-primary rounded-xl font-bold hover:bg-primary-hover transition-colors">
+                                                Return to Dashboard
+                                            </button>
+                                        </div>
+                                    } />
+                                </Routes>
+                            </React.Suspense>
                         </AnimatePresence>
                     </>
                 )}
@@ -336,8 +377,13 @@ function AppShell() {
 
             {/* Overlays */}
             <AuthModal
-                isOpen={authModalOpen}
-                onClose={() => setAuthModalOpen(false)}
+                isOpen={authModalOpen || (isStandalone && !isAuthenticated)}
+                onClose={() => {
+                    if (!isStandalone) {
+                        setAuthModalOpen(false);
+                    }
+                }}
+                hideClose={isStandalone && !isAuthenticated}
             />
             <ApplicationModal
                 isOpen={applicationModalOpen}
@@ -361,7 +407,11 @@ function AppShell() {
             <LogoutConfirmModal
                 isOpen={logoutConfirmOpen}
                 onClose={() => setLogoutConfirmOpen(false)}
-                onConfirm={logout}
+                onConfirm={() => {
+                    logout();
+                    setLogoutConfirmOpen(false);
+                    setAuthModalOpen(true);
+                }}
             />
         </div>
     );
@@ -369,13 +419,15 @@ function AppShell() {
 
 export default function App() {
     return (
-        <Router>
-            <ScrollToTop />
-            <AuthProvider>
-                <DataProvider>
-                    <AppShell />
-                </DataProvider>
-            </AuthProvider>
-        </Router>
+        <ErrorBoundary>
+            <Router>
+                <ScrollToTop />
+                <AuthProvider>
+                    <DataProvider>
+                        <AppShell />
+                    </DataProvider>
+                </AuthProvider>
+            </Router>
+        </ErrorBoundary>
     );
 }

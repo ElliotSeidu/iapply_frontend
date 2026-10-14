@@ -64,7 +64,6 @@ export const SettingsView = ({
             const updated = await updateProfile(values);
             setUser(updated);
             setProfileSuccess(true);
-            setTimeout(() => setProfileSuccess(false), 3000);
         } catch (err) {
             setProfileError(
                 getErrorMessage(err, "Could not update your profile.")
@@ -79,7 +78,6 @@ export const SettingsView = ({
             await changePassword(values);
             setPasswordSuccess(true);
             passwordForm.reset();
-            setTimeout(() => setPasswordSuccess(false), 3000);
         } catch (err) {
             setPasswordError(
                 getErrorMessage(
@@ -89,6 +87,18 @@ export const SettingsView = ({
             );
         }
     });
+
+    React.useEffect(() => {
+        if (!profileSuccess) return;
+        const timer = setTimeout(() => setProfileSuccess(false), 3000);
+        return () => clearTimeout(timer);
+    }, [profileSuccess]);
+
+    React.useEffect(() => {
+        if (!passwordSuccess) return;
+        const timer = setTimeout(() => setPasswordSuccess(false), 3000);
+        return () => clearTimeout(timer);
+    }, [passwordSuccess]);
 
     const onDeleteSubmit = deleteForm.handleSubmit(async (values) => {
         setDeleteError(null);

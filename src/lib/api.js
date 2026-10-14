@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import {
     clearTokens,
     getAccessToken,
@@ -157,6 +157,7 @@ export async function loginRequest(email, password) {
     );
     return data;
 }
+
 
 export async function requestPasswordReset(email) {
     const { data } = await api.post("/account/password-reset/request/", {

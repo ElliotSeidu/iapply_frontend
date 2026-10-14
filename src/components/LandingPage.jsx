@@ -8,13 +8,6 @@ import {
     ArrowRight,
     Lock,
     Zap,
-    FileText,
-    Shield,
-    Cookie,
-    Play,
-    Briefcase,
-    Plus,
-    Send,
 } from "lucide-react";
 
 const revealSections = () => {

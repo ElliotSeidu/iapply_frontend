@@ -4,7 +4,6 @@ import {
     Clock3,
     BellRing,
     CheckCircle2,
-    AlertCircle,
     ArrowUpRight,
     Calendar,
     Check,
@@ -72,16 +71,6 @@ export const NotificationDrawer = ({
             .sort((a, b) => (a.remind_at < b.remind_at ? -1 : 1));
     }, [reminders]);
 
-    const overdueCount = activeReminders.filter(
-        (r) => new Date(r.remind_at).getTime() < Date.now()
-    ).length;
-
-    const dueSoonCount = activeReminders.filter((r) => {
-        const time = new Date(r.remind_at).getTime();
-        const now = Date.now();
-        return time >= now && time <= now + 1000 * 60 * 60 * 24;
-    }).length;
-
     const handleMarkDone = async (reminderId) => {
         setCompletingId(reminderId);
         try {
@@ -94,7 +83,9 @@ export const NotificationDrawer = ({
     const handleMarkAllDone = async () => {
         const ids = activeReminders.map((r) => r.id);
         if (!ids.length) return;
-        await Promise.all(ids.map((id) => editReminder(id, { is_done: true })));
+        for (const id of ids) {
+            await editReminder(id, { is_done: true });
+        }
     };
 
     const totalCount = staleApps.length + activeReminders.length;

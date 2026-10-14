@@ -83,7 +83,7 @@ export const Header = ({
                 <div className="flex items-center justify-between h-[64px] gap-4">
                     <div className="flex items-center gap-6">
                         <button
-                            onClick={() => setActiveTab("dashboard")}
+                            onClick={() => setActiveTab("/")}
                             className="font-display text-2xl md:text-3xl font-bold text-primary italic tracking-tight hover:opacity-90 transition-opacity"
                         >
                             iApply
@@ -128,7 +128,7 @@ export const Header = ({
 
                         <button
                             onClick={onToggleDarkMode}
-                            className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full transition-all"
+                            className="p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-high rounded-full transition-all cursor-pointer"
                             aria-label="Toggle Dark Mode"
                             title={
                                 isDarkMode
@@ -218,7 +218,7 @@ export const Header = ({
                         {!user && (
                             <button
                                 onClick={onOpenAuth}
-                                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary-container/50 rounded-full transition-colors"
+                                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-primary hover:bg-primary-container/50 rounded-full transition-colors cursor-pointer"
                             >
                                 <LogIn className="w-4 h-4" /> Sign In
                             </button>
@@ -234,7 +234,7 @@ export const Header = ({
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveTab(item.id)}
-                                    className={`h-full text-sm font-semibold transition-all flex items-center relative ${isActive ? "text-primary border-b-2 border-primary font-bold" : "text-on-surface-variant hover:text-primary"}`}
+                                    className={`h-full text-sm font-semibold transition-all flex items-center relative cursor-pointer ${isActive ? "text-primary border-b-2 border-primary font-bold" : "text-on-surface-variant hover:text-primary"}`}
                                 >
                                     {item.label}
                                 </button>

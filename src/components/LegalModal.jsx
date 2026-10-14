@@ -11,6 +11,12 @@ import {
 export const LegalModal = ({ isOpen, onClose, initialTab = "privacy" }) => {
     const [activeTab, setActiveTab] = useState(initialTab);
     
+    React.useEffect(() => {
+        if (isOpen) {
+            setActiveTab(initialTab);
+        }
+    }, [isOpen, initialTab]);
+    
     if (!isOpen) return null;
 
     return (
