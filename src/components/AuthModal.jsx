@@ -980,7 +980,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                                     type="text"
                                     inputMode="numeric"
                                     placeholder="123456"
-                                    maxLength={8}
+                                    maxLength={6}
                                     className={`${inputClass(false)} text-center tracking-[0.3em] text-lg font-bold`}
                                     value={verificationCode}
                                     onChange={(e) =>
@@ -988,6 +988,12 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                                             e.target.value.replace(/\D/g, "")
                                         )
                                     }
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && verificationCode.length === 6) {
+                                            e.preventDefault();
+                                            onVerifySubmit();
+                                        }
+                                    }}
                                 />
                             </FormField>
 
@@ -1002,7 +1008,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                                 <button
                                     type="button"
                                     onClick={onVerifySubmit}
-                                    disabled={verificationCode.length < 4}
+                                    disabled={verificationCode.length < 6}
                                     className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <CheckCircle2 className="w-4 h-4" />

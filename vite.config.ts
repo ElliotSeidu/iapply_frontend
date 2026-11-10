@@ -61,5 +61,14 @@ export default defineConfig(() => ({
   },
   server: {
     port: 3000,
+    // Security headers served during local development (mirrors production headers).
+    // These do NOT replace the backend middleware headers — they give devs an
+    // accurate picture of what browsers will enforce in production.
+    headers: {
+      'X-Content-Type-Options': 'nosniff',
+      'X-Frame-Options': 'DENY',
+      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+    },
   },
 }));

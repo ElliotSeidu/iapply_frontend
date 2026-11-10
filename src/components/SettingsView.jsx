@@ -17,6 +17,7 @@ import {
 import {
     changePasswordSchema,
     deleteAccountSchema,
+    googleDeleteAccountSchema,
     profileSchema,
 } from "../schemas/auth";
 import { FormField, inputClass } from "./ui/FormField";
@@ -53,8 +54,13 @@ export const SettingsView = ({
         resolver: zodResolver(changePasswordSchema),
     });
 
+    // Google-only accounts have no password to confirm with — the server
+    // accepts deletion based on the authenticated session alone for them.
+    const isGoogleOnly = user?.has_password === false;
     const deleteForm = useForm({
-        resolver: zodResolver(deleteAccountSchema),
+        resolver: zodResolver(
+            isGoogleOnly ? googleDeleteAccountSchema : deleteAccountSchema
+        ),
     });
 
     const onProfileSubmit = profileForm.handleSubmit(async (values) => {
@@ -103,7 +109,7 @@ export const SettingsView = ({
     const onDeleteSubmit = deleteForm.handleSubmit(async (values) => {
         setDeleteError(null);
         try {
-            await deleteAccount(values.password);
+            await deleteAccount(values.password ?? "");
             await logout();
         } catch (err) {
             setDeleteError(
@@ -260,6 +266,16 @@ export const SettingsView = ({
                     </div>
                 </div>
 
+                {user?.has_password === false ? (
+                    <div className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/20 text-sm text-on-surface-variant leading-relaxed">
+                        <p className="font-semibold text-on-surface mb-1">No password set</p>
+                        <p>
+                            Your account was created with Google Sign-In. To set a password,
+                            sign out and use the{" "}
+                            <strong>Forgot Password</strong> link on the sign-in screen.
+                        </p>
+                    </div>
+                ) : (
                 <form
                     onSubmit={onPasswordSubmit}
                     className="space-y-4"
@@ -345,6 +361,7 @@ export const SettingsView = ({
                         Update Password
                     </button>
                 </form>
+                )}
 
                 <div className="mt-6 pt-4 border-t border-outline-variant/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <button
@@ -390,6 +407,7 @@ export const SettingsView = ({
                             {deleteError}
                         </div>
                     )}
+                    {!isGoogleOnly && (
                     <FormField
                         label="Enter your password to confirm deletion"
                         required
@@ -405,6 +423,7 @@ export const SettingsView = ({
                             {...deleteForm.register("password")}
                         />
                     </FormField>
+                    )}
                     <FormField
                         label='Type "DELETE" in capital letters'
                         required

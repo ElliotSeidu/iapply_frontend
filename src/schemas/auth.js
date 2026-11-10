@@ -79,6 +79,12 @@ export const deleteAccountSchema = z.object({
         .refine((val) => val === "DELETE", "Type DELETE to confirm"),
 });
 
+// Google-only accounts have no password; the typed DELETE confirmation is the
+// only client-side gate (the server authenticates via the session token).
+export const googleDeleteAccountSchema = deleteAccountSchema.extend({
+    password: z.string().optional(),
+});
+
 export const profileSchema = z.object({
     first_name: z.string().trim().min(1, "First name is required").max(150),
     last_name: z.string().trim().min(1, "Last name is required").max(150),

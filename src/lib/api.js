@@ -206,12 +206,16 @@ function unwrapList(data) {
     return Array.isArray(data) ? data : data.results;
 }
 
+// Safety cap: prevent an infinite loop if the backend returns a malformed
+// or unexpected "next" field (e.g. during a migration or bad deployment).
+const MAX_PAGES = 50;
+
 async function fetchAllPages(path) {
     const items = [];
     let page = 1;
     let hasNextPage = true;
 
-    while (hasNextPage) {
+    while (hasNextPage && page <= MAX_PAGES) {
         const { data } = await api.get(path, {
             params: { page, page_size: 200 },
         });
@@ -220,6 +224,14 @@ async function fetchAllPages(path) {
         hasNextPage = Boolean(data.next);
         page += 1;
     }
+
+    if (page > MAX_PAGES) {
+        console.warn(
+            `fetchAllPages: hit the ${MAX_PAGES}-page safety cap on ${path}. ` +
+            "Some items may not have been loaded."
+        );
+    }
+
     return items;
 }
 
