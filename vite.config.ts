@@ -1,6 +1,5 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -10,7 +9,7 @@ export default defineConfig(() => ({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
+      includeAssets: ['apple-touch-icon.png', 'icons/*.png'],
       manifest: {
         name: 'iApply – Job Application Tracker',
         short_name: 'iApply',
@@ -54,11 +53,6 @@ export default defineConfig(() => ({
       },
     }),
   ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, '.'),
-    },
-  },
   server: {
     port: 3000,
     // Security headers served during local development (mirrors production headers).
