@@ -26,6 +26,7 @@ import {
     changePassword,
     deleteAccount,
     getErrorMessage,
+    requestAccountDeletionCode,
     updateProfile,
 } from "../lib/api";
 
@@ -41,6 +42,8 @@ export const SettingsView = ({
     const [passwordSuccess, setPasswordSuccess] = useState(false);
     const [passwordError, setPasswordError] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
+    const [deleteCodeSending, setDeleteCodeSending] = useState(false);
+    const [deleteCodeSentMsg, setDeleteCodeSentMsg] = useState(null);
 
     const profileForm = useForm({
         resolver: zodResolver(profileSchema),
@@ -114,16 +117,43 @@ export const SettingsView = ({
         return () => clearTimeout(timer);
     }, [passwordSuccess]);
 
+    const handleRequestDeleteCode = async () => {
+        setDeleteError(null);
+        setDeleteCodeSentMsg(null);
+        setDeleteCodeSending(true);
+        try {
+            const data = await requestAccountDeletionCode();
+            setDeleteCodeSentMsg(
+                data?.message ||
+                    "Verification code sent to your email. Enter it below within 10 minutes."
+            );
+        } catch (err) {
+            setDeleteError(
+                getErrorMessage(
+                    err,
+                    "Could not send a verification code. Please try again."
+                )
+            );
+        } finally {
+            setDeleteCodeSending(false);
+        }
+    };
+
     const onDeleteSubmit = deleteForm.handleSubmit(async (values) => {
         setDeleteError(null);
         try {
-            await deleteAccount(values.password ?? "");
+            const payload = isGoogleOnly
+                ? { code: (values.code || "").trim() }
+                : { password: values.password ?? "" };
+            await deleteAccount(payload);
             await logout();
         } catch (err) {
             setDeleteError(
                 getErrorMessage(
                     err,
-                    "Could not delete your account. Check your password."
+                    isGoogleOnly
+                        ? "Could not delete your account. Check your code and try again."
+                        : "Could not delete your account. Check your password."
                 )
             );
         }
@@ -410,27 +440,95 @@ export const SettingsView = ({
                     noValidate
                 >
                     {deleteError && (
-                        <div className="p-3 bg-error-container text-on-error-container rounded-xl text-xs flex items-center gap-2">
+                        <div
+                            role="alert"
+                            className="p-3 bg-error-container text-on-error-container rounded-xl text-xs flex items-center gap-2"
+                        >
                             <AlertCircle className="w-4 h-4 shrink-0" />{" "}
                             {deleteError}
                         </div>
                     )}
-                    {!isGoogleOnly && (
-                    <FormField
-                        label="Enter your password to confirm deletion"
-                        required
-                        error={deleteForm.formState.errors.password?.message}
-                    >
-                        <input
-                            type="password"
-                            autoComplete="current-password"
-                            className={inputClass(
-                                !!deleteForm.formState.errors.password,
-                                false
+                    {isGoogleOnly ? (
+                        <div className="space-y-3">
+                            <div className="flex flex-wrap items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleRequestDeleteCode}
+                                    disabled={
+                                        deleteCodeSending ||
+                                        deleteForm.formState.isSubmitting
+                                    }
+                                    className="px-4 py-2 bg-surface-container-lowest text-on-surface text-xs font-bold rounded-xl border border-outline-variant hover:bg-surface-container transition-all flex items-center gap-2 disabled:opacity-60 cursor-pointer"
+                                >
+                                    {deleteCodeSending ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                        <Mail className="w-3.5 h-3.5 text-primary" />
+                                    )}
+                                    {deleteCodeSending
+                                        ? "Sending code…"
+                                        : "Send Deletion Code"}
+                                </button>
+                                <span className="text-xs text-on-surface-variant">
+                                    We&apos;ll email a 6-digit confirmation code
+                                    to {user?.email}.
+                                </span>
+                            </div>
+                            {deleteCodeSentMsg && (
+                                <div
+                                    role="status"
+                                    className="p-3 bg-secondary-container text-on-secondary-container rounded-xl text-xs flex items-center gap-2"
+                                >
+                                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                                    <span>{deleteCodeSentMsg}</span>
+                                </div>
                             )}
-                            {...deleteForm.register("password")}
-                        />
-                    </FormField>
+                            <FormField
+                                label="6-Digit Email Code"
+                                required
+                                error={deleteForm.formState.errors.code?.message}
+                            >
+                                <input
+                                    id="delete-account-code"
+                                    type="text"
+                                    inputMode="numeric"
+                                    maxLength={6}
+                                    autoComplete="one-time-code"
+                                    placeholder="123456"
+                                    aria-label="6-Digit Email Code"
+                                    aria-invalid={
+                                        !!deleteForm.formState.errors.code
+                                    }
+                                    className={inputClass(
+                                        !!deleteForm.formState.errors.code,
+                                        false
+                                    )}
+                                    {...deleteForm.register("code")}
+                                />
+                            </FormField>
+                        </div>
+                    ) : (
+                        <FormField
+                            label="Enter your password to confirm deletion"
+                            required
+                            error={
+                                deleteForm.formState.errors.password?.message
+                            }
+                        >
+                            <input
+                                type="password"
+                                autoComplete="current-password"
+                                aria-label="Enter your password to confirm deletion"
+                                aria-invalid={
+                                    !!deleteForm.formState.errors.password
+                                }
+                                className={inputClass(
+                                    !!deleteForm.formState.errors.password,
+                                    false
+                                )}
+                                {...deleteForm.register("password")}
+                            />
+                        </FormField>
                     )}
                     <FormField
                         label='Type "DELETE" in capital letters'
@@ -441,6 +539,10 @@ export const SettingsView = ({
                     >
                         <input
                             type="text"
+                            aria-label='Type "DELETE" in capital letters'
+                            aria-invalid={
+                                !!deleteForm.formState.errors.confirmation
+                            }
                             className={inputClass(
                                 !!deleteForm.formState.errors.confirmation,
                                 false

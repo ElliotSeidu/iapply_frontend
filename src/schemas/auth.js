@@ -79,10 +79,16 @@ export const deleteAccountSchema = z.object({
         .refine((val) => val === "DELETE", "Type DELETE to confirm"),
 });
 
-// Google-only accounts have no password; the typed DELETE confirmation is the
-// only client-side gate (the server authenticates via the session token).
-export const googleDeleteAccountSchema = deleteAccountSchema.extend({
-    password: z.string().optional(),
+// Google-only accounts have no password; they confirm deletion with a short-lived
+// 6-digit emailed OTP plus the typed DELETE confirmation.
+export const googleDeleteAccountSchema = z.object({
+    code: z
+        .string()
+        .trim()
+        .regex(/^\d{6}$/, "Enter the 6-digit code from your email"),
+    confirmation: z
+        .string()
+        .refine((val) => val === "DELETE", "Type DELETE to confirm"),
 });
 
 export const profileSchema = z.object({

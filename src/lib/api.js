@@ -198,11 +198,17 @@ export async function updateProfile(payload) {
 export async function changePassword(payload) {
     await api.patch("/account/change-password/", payload);
 }
-export async function deleteAccount(password) {
+export async function requestAccountDeletionCode() {
+    const { data } = await api.post("/account/delete-account/request/", {});
+    return data;
+}
+export async function deleteAccount(payloadOrPassword) {
+    const payload =
+        typeof payloadOrPassword === "string"
+            ? { password: payloadOrPassword }
+            : payloadOrPassword || {};
     await api.delete("/account/delete-account/", {
-        data: {
-            password,
-        },
+        data: payload,
     });
 }
 export async function logoutRequest(refresh) {
