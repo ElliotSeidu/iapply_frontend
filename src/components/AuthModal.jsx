@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -132,6 +132,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
     const [serverError, setServerError] = useState(null);
     const [serverSuccess, setServerSuccess] = useState(null);
     const [isVerifying, setIsVerifying] = useState(false);
+    const verifyingRef = useRef(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [resetStep, setResetStep] = useState(null);
     const [resetEmail, setResetEmail] = useState("");
@@ -290,9 +291,10 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
     });
 
     const onVerifySubmit = async () => {
+        if (!verificationEmail || verifyingRef.current || isVerifying) return;
+        verifyingRef.current = true;
         setServerError(null);
         setServerSuccess(null);
-        if (!verificationEmail || isVerifying) return;
         setIsVerifying(true);
         try {
             const data = await verifyRegisterRequest({
@@ -315,6 +317,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                 )
             );
         } finally {
+            verifyingRef.current = false;
             setIsVerifying(false);
         }
     };
