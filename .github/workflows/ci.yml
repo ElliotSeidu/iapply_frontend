@@ -1,0 +1,43 @@
+name: Frontend CI
+
+on:
+  push:
+    branches: [main, security/verify, release/prod-ready]
+  pull_request:
+    branches: [main, security/verify, release/prod-ready]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run Vitest unit and regression tests
+        run: npm test
+
+      - name: Build production bundle
+        env:
+          VITE_API_BASE_URL: https://api.example.com
+          VITE_GOOGLE_CLIENT_ID: ""
+        run: npm run build
+
+      - name: Ensure no sourcemaps in production dist
+        run: |
+          if find dist -name '*.map' | grep -q .; then
+            echo "Unexpected sourcemap files found in dist/"
+            exit 1
+          fi
+
+      - name: Audit runtime dependencies (high/critical)
+        run: npm audit --omit=dev --audit-level=high
