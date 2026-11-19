@@ -159,8 +159,6 @@ export const ApplicationModal = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [applicationToEdit?.id, isOpen, reset, initialStatus]);
 
-    if (!isOpen) return null;
-
     const onSubmit = handleSubmit(async (values) => {
         setServerError(null);
         try {
@@ -204,7 +202,7 @@ export const ApplicationModal = ({
     const isValid = (field) => touchedFields[field] && !errors[field];
 
     // ─── Read-only overview panel ────────────────────────────────────────────
-    const OverviewPanel = () => (
+    const renderOverviewPanel = () => (
         <div className="overflow-y-auto flex-1">
             <div className="p-6 space-y-5">
                 {serverError && (
@@ -340,7 +338,7 @@ export const ApplicationModal = ({
     );
 
     // ─── Edit form panel ─────────────────────────────────────────────────────
-    const EditFormPanel = () => (
+    const renderEditFormPanel = () => (
         <form onSubmit={onSubmit} className="overflow-y-auto flex-1" noValidate>
             <div className="p-6 space-y-5">
                 {serverError && (
@@ -590,14 +588,14 @@ export const ApplicationModal = ({
                         {/* Body — switches between overview and edit */}
                         <AnimatePresence mode="wait">
                             {applicationToEdit && !isEditing ? (
-                                <motion.div
+                                    <motion.div
                                     key="overview"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0, transition: { duration: 0.2 } }}
                                     exit={{ opacity: 0, x: 20, transition: { duration: 0.15 } }}
                                     className="flex flex-col flex-1 overflow-hidden"
                                 >
-                                    <OverviewPanel />
+                                    {renderOverviewPanel()}
                                 </motion.div>
                             ) : (
                                 <motion.div
@@ -607,7 +605,7 @@ export const ApplicationModal = ({
                                     exit={{ opacity: 0, x: -20, transition: { duration: 0.15 } }}
                                     className="flex flex-col flex-1 overflow-hidden"
                                 >
-                                    <EditFormPanel />
+                                    {renderEditFormPanel()}
                                 </motion.div>
                             )}
                         </AnimatePresence>

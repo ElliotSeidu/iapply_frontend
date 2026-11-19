@@ -8,10 +8,13 @@ import {
     Calendar,
     Check,
     AlertTriangle,
+    AlertCircle,
+    Loader2,
     Inbox,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useData } from "../context/DataContext";
+import { getErrorMessage } from "../lib/api";
 
 const backdropVariants = {
     hidden: { opacity: 0 },
@@ -51,6 +54,8 @@ export const NotificationDrawer = ({
 
     const [activeTab, setActiveTab] = useState("all");
     const [completingId, setCompletingId] = useState(null);
+    const [isMarkingAll, setIsMarkingAll] = useState(false);
+    const [drawerError, setDrawerError] = useState(null);
 
     // Get stale applications
     const staleApps = useMemo(
@@ -73,8 +78,13 @@ export const NotificationDrawer = ({
 
     const handleMarkDone = async (reminderId) => {
         setCompletingId(reminderId);
+        setDrawerError(null);
         try {
             await editReminder(reminderId, { is_done: true });
+        } catch (err) {
+            setDrawerError(
+                getErrorMessage(err, "Could not mark reminder as done.")
+            );
         } finally {
             setCompletingId(null);
         }
@@ -82,9 +92,19 @@ export const NotificationDrawer = ({
 
     const handleMarkAllDone = async () => {
         const ids = activeReminders.map((r) => r.id);
-        if (!ids.length) return;
-        for (const id of ids) {
-            await editReminder(id, { is_done: true });
+        if (!ids.length || isMarkingAll) return;
+        setIsMarkingAll(true);
+        setDrawerError(null);
+        try {
+            for (const id of ids) {
+                await editReminder(id, { is_done: true });
+            }
+        } catch (err) {
+            setDrawerError(
+                getErrorMessage(err, "Could not mark all reminders as done.")
+            );
+        } finally {
+            setIsMarkingAll(false);
         }
     };
 
@@ -162,11 +182,23 @@ export const NotificationDrawer = ({
                             <div className="px-4 py-2 border-b border-outline-variant">
                                 <button
                                     onClick={handleMarkAllDone}
-                                    className="flex items-center gap-2 text-xs font-semibold text-primary hover:text-on-primary px-3 py-1.5 rounded-lg hover:bg-primary-container transition-colors"
+                                    disabled={isMarkingAll}
+                                    className="flex items-center gap-2 text-xs font-semibold text-primary hover:text-on-primary px-3 py-1.5 rounded-lg hover:bg-primary-container transition-colors disabled:opacity-50"
                                 >
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    Mark all done
+                                    {isMarkingAll ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <CheckCircle2 className="h-4 w-4" />
+                                    )}
+                                    {isMarkingAll ? "Marking done…" : "Mark all done"}
                                 </button>
+                            </div>
+                        )}
+
+                        {drawerError && (
+                            <div className="mx-4 mt-3 p-3 bg-error-container text-on-error-container rounded-xl text-xs font-medium flex items-start gap-2">
+                                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                                <span>{drawerError}</span>
                             </div>
                         )}
 

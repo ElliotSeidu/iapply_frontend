@@ -21,6 +21,14 @@ const STATUS_BADGE = {
     withdrawn: "bg-surface-container-high text-on-surface-variant",
 };
 
+function formatLocalDate(isoDate) {
+    const parts = (isoDate || "").split("-").map(Number);
+    if (parts.length === 3 && parts.every((n) => !Number.isNaN(n))) {
+        return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString();
+    }
+    return isoDate;
+}
+
 export const ApplicationsView = ({
     onSelectApplication,
     onOpenAddModal,
@@ -164,9 +172,7 @@ export const ApplicationsView = ({
                                         </span>
                                     )}
                                     <span className="text-on-surface-variant">
-                                        {new Date(
-                                            app.date_applied
-                                        ).toLocaleDateString()}
+                                        {formatLocalDate(app.date_applied)}
                                     </span>
                                 </div>
 

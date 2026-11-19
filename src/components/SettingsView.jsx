@@ -49,6 +49,14 @@ export const SettingsView = ({
             last_name: user?.last_name ?? "",
         },
     });
+    const resetProfileForm = profileForm.reset;
+
+    React.useEffect(() => {
+        resetProfileForm({
+            first_name: user?.first_name ?? "",
+            last_name: user?.last_name ?? "",
+        });
+    }, [resetProfileForm, user?.first_name, user?.last_name]);
 
     const passwordForm = useForm({
         resolver: zodResolver(changePasswordSchema),

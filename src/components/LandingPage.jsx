@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
     ShieldCheck,
     BarChart3,
@@ -9,20 +9,6 @@ import {
     Lock,
     Zap,
 } from "lucide-react";
-
-const revealSections = () => {
-    const items = Array.from(document.querySelectorAll("[data-reveal]"));
-
-    if (!items.length) return;
-
-    items.forEach((item, index) => {
-        const timeoutId = window.setTimeout(() => {
-            item.classList.add("is-visible");
-        }, index * 80);
-
-        item.dataset.revealTimeout = String(timeoutId);
-    });
-};
 
 // ─── Feature cards ────────────────────────────────────────────────────────────
 const features = [
@@ -91,25 +77,11 @@ const stats = [
 ];
 
 export const LandingPage = ({ onOpenAuth, onOpenLegal }) => {
-    useEffect(() => {
-        revealSections();
-
-        return () => {
-            document.querySelectorAll("[data-reveal]").forEach((item) => {
-                if (item.dataset.revealTimeout) {
-                    window.clearTimeout(Number(item.dataset.revealTimeout));
-                }
-                item.classList.remove("is-visible");
-            });
-        };
-    }, []);
-
     return (
         <div className="flex flex-col w-full animate-fade-in">
             {/* ── Hero ──────────────────────────────────────────────────────────────── */}
             <section
                 className="relative overflow-hidden bg-white dark:bg-black border-b border-black/[0.07] dark:border-white/[0.07]"
-                data-reveal
             >
                 <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 lg:py-24">
                     <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-12 lg:gap-16 items-center">
@@ -354,7 +326,6 @@ export const LandingPage = ({ onOpenAuth, onOpenLegal }) => {
             {/* ── Stats strip ───────────────────────────────────────────────────────── */}
             <section
                 className="border-b border-outline-variant/30 bg-surface-container-low"
-                data-reveal
             >
                 <div className="max-w-5xl mx-auto px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
                     {stats.map((s) => (
@@ -400,7 +371,6 @@ export const LandingPage = ({ onOpenAuth, onOpenLegal }) => {
                                 <div
                                     key={title}
                                     className="group rounded-3xl p-6 bg-surface-container-lowest border border-outline-variant/25 flex flex-col gap-4 shadow-xs hover:shadow-lg hover:-translate-y-1.5 transition-all duration-200"
-                                    data-reveal
                                 >
                                     <div
                                         className={`w-12 h-12 rounded-2xl ${iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}
@@ -426,7 +396,6 @@ export const LandingPage = ({ onOpenAuth, onOpenLegal }) => {
             {/* ── How it works ──────────────────────────────────────────────────────── */}
             <section
                 className="py-20 px-6 bg-surface-container-low"
-                data-reveal
             >
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-14">
@@ -446,7 +415,6 @@ export const LandingPage = ({ onOpenAuth, onOpenLegal }) => {
                             <div
                                 key={step.number}
                                 className="flex-1 flex flex-col items-center text-center gap-4 group"
-                                data-reveal
                             >
                                 {/* Number circle */}
                                 <div

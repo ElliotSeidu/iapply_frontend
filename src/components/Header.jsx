@@ -83,7 +83,7 @@ export const Header = ({
                 <div className="flex items-center justify-between h-[64px] gap-4">
                     <div className="flex items-center gap-6">
                         <button
-                            onClick={() => setActiveTab("/")}
+                            onClick={() => user && setActiveTab("dashboard")}
                             className="font-display text-2xl md:text-3xl font-bold text-primary italic tracking-tight hover:opacity-90 transition-opacity"
                         >
                             iApply

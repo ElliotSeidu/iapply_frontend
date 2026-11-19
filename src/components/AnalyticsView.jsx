@@ -26,15 +26,14 @@ const STATUS_COLORS = {
 
 export const AnalyticsView = () => {
     const { analytics, isLoading } = useData();
+    const channelPerformance = analytics?.channel_performance ?? [];
     const statusData = useMemo(() => {
-        if (!analytics) return [];
-        return Object.entries(analytics.status_breakdown).map(
-            ([status, count]) => ({
-                name: STATUS_LABELS[status],
-                value: count,
-                status: status,
-            })
-        );
+        const statusBreakdown = analytics?.status_breakdown ?? {};
+        return Object.entries(statusBreakdown).map(([status, count]) => ({
+            name: STATUS_LABELS[status],
+            value: count,
+            status: status,
+        }));
     }, [analytics]);
 
     if (isLoading && !analytics) {
@@ -86,7 +85,7 @@ export const AnalyticsView = () => {
                 />
                 <MetricCard
                     label="Top Converting Channel"
-                    value={analytics.channel_performance[0]?.label ?? "—"}
+                    value={channelPerformance[0]?.label ?? "—"}
                     small
                 />
             </div>
@@ -164,7 +163,7 @@ export const AnalyticsView = () => {
 
                     <ResponsiveContainer width="100%" height={260}>
                         <BarChart
-                            data={analytics.channel_performance}
+                            data={channelPerformance}
                             layout="vertical"
                             margin={{
                                 left: 10,
@@ -229,7 +228,7 @@ export const AnalyticsView = () => {
                 </h3>
 
                 <div className="divide-y divide-outline-variant/15">
-                    {analytics.channel_performance.map((c) => (
+                    {channelPerformance.map((c) => (
                         <div
                             key={c.channel}
                             className="flex items-center justify-between py-3 text-xs sm:text-sm"

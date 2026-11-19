@@ -213,10 +213,6 @@ export async function logoutRequest(refresh) {
 
 // --- Applications ---------------------------------------------------------------
 
-function unwrapList(data) {
-    return Array.isArray(data) ? data : data.results;
-}
-
 // Safety cap: prevent an infinite loop if the backend returns a malformed
 // or unexpected "next" field (e.g. during a migration or bad deployment).
 const MAX_PAGES = 50;
@@ -275,11 +271,6 @@ export async function logStatusChange(id, status, notes = "") {
         notes,
     });
     return getApplication(id);
-}
-
-export async function listStaleApplications() {
-    const { data } = await api.get("/tracker/applications/stale/");
-    return unwrapList(data);
 }
 
 // --- Reminders --------------------------------------------------------------------

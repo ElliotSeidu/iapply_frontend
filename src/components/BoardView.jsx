@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { Plus, Building2, Clock3, Kanban } from "lucide-react";
+import { Plus, Building2, Clock3, Kanban, AlertCircle } from "lucide-react";
 import { useData } from "../context/DataContext";
+import { getErrorMessage } from "../lib/api";
 import { CHANNEL_LABELS, STATUS_LABELS, STATUS_ORDER } from "../types/api";
 
 const COLUMN_STYLES = {
@@ -44,6 +45,7 @@ export const BoardView = ({
     const { applications, changeStatus } = useData();
     const [draggingId, setDraggingId] = useState(null);
     const [dragOverColumn, setDragOverColumn] = useState(null);
+    const [boardError, setBoardError] = useState(null);
 
     const filtered = useMemo(() => {
         const q = searchQuery.toLowerCase().trim();
@@ -65,7 +67,7 @@ export const BoardView = ({
             rejected: [],
             withdrawn: [],
         };
-        filtered.forEach((a) => map[a.current_status].push(a));
+        filtered.forEach((a) => map[a.current_status]?.push(a));
         return map;
     }, [filtered]);
 
@@ -75,10 +77,13 @@ export const BoardView = ({
         const app = applications.find((a) => a.id === draggingId);
         setDraggingId(null);
         if (!app || app.current_status === status) return;
+        setBoardError(null);
         try {
             await changeStatus(app.id, status);
-        } catch {
-            // Handled via context
+        } catch (err) {
+            setBoardError(
+                getErrorMessage(err, "Could not update application status.")
+            );
         }
     };
     
@@ -109,6 +114,13 @@ export const BoardView = ({
                 </button>
             </div>
 
+            {boardError && (
+                <div className="p-3 bg-error-container text-on-error-container rounded-xl text-xs font-medium flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{boardError}</span>
+                </div>
+            )}
+
             {/* Columns Container */}
             <div className="flex gap-4 overflow-x-auto pb-4">
                 {STATUS_ORDER.map((status) => {
@@ -123,8 +135,15 @@ export const BoardView = ({
                                 e.preventDefault();
                                 setDragOverColumn(status);
                             }}
-                            onDragLeave={() => setDragOverColumn(null)}
-                            onDrop={() => handleDrop(status)}
+                            onDragLeave={(e) => {
+                                if (!e.currentTarget.contains(e.relatedTarget)) {
+                                    setDragOverColumn(null);
+                                }
+                            }}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                handleDrop(status);
+                            }}
                             className={`shrink-0 w-72 rounded-2xl border-t-4 ${style.border} p-3 flex flex-col transition-all duration-200 ${isOver ? "bg-surface-container shadow-md scale-[1.01]" : `bg-surface-container-low/70 border ${status === "rejected" ? "border-error/50" : "border-outline-variant/15"}`}`}
                         >
                             <div className="flex items-center justify-between mb-3 px-1">

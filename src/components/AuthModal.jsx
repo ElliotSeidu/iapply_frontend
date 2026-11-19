@@ -130,6 +130,8 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [serverError, setServerError] = useState(null);
+    const [serverSuccess, setServerSuccess] = useState(null);
+    const [isVerifying, setIsVerifying] = useState(false);
     const [googleLoading, setGoogleLoading] = useState(false);
     const [resetStep, setResetStep] = useState(null);
     const [resetEmail, setResetEmail] = useState("");
@@ -164,6 +166,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
         setResetStep(null);
         setResetCode("");
         setServerError(null);
+        setServerSuccess(null);
         loginForm.clearErrors();
         registerForm.clearErrors();
         resetRequestForm.clearErrors();
@@ -172,6 +175,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
 
     const startPasswordReset = () => {
         setServerError(null);
+        setServerSuccess(null);
         setResetStep("request");
         resetRequestForm.reset({ email: loginForm.getValues("email") || "" });
     };
@@ -179,6 +183,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
     const onResetRequestSubmit = resetRequestForm.handleSubmit(
         async (values) => {
             setServerError(null);
+            setServerSuccess(null);
             try {
                 await requestPasswordReset(values.email);
                 setResetEmail(values.email.trim().toLowerCase());
@@ -220,12 +225,8 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                 setResetCode("");
                 setResetStep(null);
                 setServerError(null);
-                window.setTimeout(
-                    () =>
-                        setServerError(
-                            "Password updated. Sign in with your new password."
-                        ),
-                    0
+                setServerSuccess(
+                    "Password updated. Sign in with your new password."
                 );
             } catch (err) {
                 setServerError(
@@ -240,6 +241,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
 
     const handleGoogleCredential = async (credential) => {
         setServerError(null);
+        setServerSuccess(null);
         setGoogleLoading(true);
         try {
             await loginWithGoogle(credential);
@@ -260,6 +262,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
 
     const onLoginSubmit = loginForm.handleSubmit(async (values) => {
         setServerError(null);
+        setServerSuccess(null);
         try {
             await login(values.email, values.password);
             onClose();
@@ -271,6 +274,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
 
     const onRegisterSubmit = registerForm.handleSubmit(async (values) => {
         setServerError(null);
+        setServerSuccess(null);
         try {
             await registerUser(values);
             setVerificationEmail(values.email);
@@ -287,7 +291,9 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
 
     const onVerifySubmit = async () => {
         setServerError(null);
-        if (!verificationEmail) return;
+        setServerSuccess(null);
+        if (!verificationEmail || isVerifying) return;
+        setIsVerifying(true);
         try {
             const data = await verifyRegisterRequest({
                 email: verificationEmail,
@@ -308,6 +314,8 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                     "Verification failed. Please check the code and try again."
                 )
             );
+        } finally {
+            setIsVerifying(false);
         }
     };
 
@@ -652,6 +660,13 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                                     Sign in to access your application pipeline.
                                 </p>
                             </div>
+
+                            {serverSuccess && (
+                                <div className="p-3 bg-secondary-container text-on-secondary-container rounded-xl text-xs font-medium flex items-start gap-2">
+                                    <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                                    <span>{serverSuccess}</span>
+                                </div>
+                            )}
 
                             {serverError && (
                                 <div className="p-3 bg-error-container text-on-error-container rounded-xl text-xs font-medium flex items-start gap-2">
@@ -1074,11 +1089,20 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                                 <button
                                     type="button"
                                     onClick={onVerifySubmit}
-                                    disabled={verificationCode.length < 6}
+                                    disabled={
+                                        verificationCode.length < 6 ||
+                                        isVerifying
+                                    }
                                     className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <CheckCircle2 className="w-4 h-4" />
-                                    Verify &amp; Continue
+                                    {isVerifying ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <CheckCircle2 className="w-4 h-4" />
+                                    )}
+                                    {isVerifying
+                                        ? "Verifying…"
+                                        : "Verify & Continue"}
                                 </button>
                                 <button
                                     type="button"

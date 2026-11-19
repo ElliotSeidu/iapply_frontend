@@ -22,9 +22,18 @@ export const applicationSchema = z.object({
     date_applied: z
         .string()
         .min(1, "Date applied is required")
-        .refine((val) => !Number.isNaN(Date.parse(val)), "Enter a valid date")
+        .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter a valid date")
+        .refine((val) => {
+            const [y, m, d] = val.split("-").map(Number);
+            const dt = new Date(y, m - 1, d);
+            return (
+                dt.getFullYear() === y &&
+                dt.getMonth() === m - 1 &&
+                dt.getDate() === d
+            );
+        }, "Enter a valid date")
         .refine(
-            (val) => new Date(val) <= new Date(new Date().toDateString()),
+            (val) => val <= new Date().toLocaleDateString("en-CA"),
             "Date applied cannot be in the future"
         ),
     work_model: z
@@ -50,8 +59,4 @@ export const applicationSchema = z.object({
         .trim()
         .max(100, "Keep this under 100 characters"),
     notes: z.string().trim().max(4000, "Keep notes under 4000 characters"),
-});
-export const reminderSchema = z.object({
-    message: z.string().trim().min(1, "Reminder message is required").max(255),
-    remind_at: z.string().min(1, "Pick a date and time"),
 });
