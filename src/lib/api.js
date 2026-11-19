@@ -73,7 +73,9 @@ api.interceptors.response.use(
         const status = error.response?.status;
 
         // Never try to "refresh" the refresh call itself, and never retry more than once.
-        const isAuthEndpoint = original?.url?.includes("/account/login");
+        const isAuthEndpoint =
+            original?.url?.includes("/account/login") ||
+            original?.url?.includes("/account/google");
         if (
             status === 401 &&
             original &&
@@ -154,6 +156,15 @@ export async function loginRequest(email, password) {
         {
             timeout: 10000,
         }
+    );
+    return data;
+}
+
+export async function googleLoginRequest(credential) {
+    const { data } = await axios.post(
+        `${API_BASE_URL}/account/google/`,
+        { credential },
+        { timeout: 12000 }
     );
     return data;
 }

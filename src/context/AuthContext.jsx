@@ -12,6 +12,7 @@ import {
     API_BASE_URL,
     fetchMe,
     getErrorMessage,
+    googleLoginRequest,
     loginRequest,
     logoutRequest,
     registerRequest,
@@ -119,6 +120,16 @@ export function AuthProvider({ children }) {
         [refreshUser]
     );
 
+    const loginWithGoogle = useCallback(
+        async (credential) => {
+            const data = await googleLoginRequest(credential);
+            setAccessToken(data.access);
+            setRefreshToken(data.refresh);
+            await refreshUser();
+        },
+        [refreshUser]
+    );
+
     const register = useCallback(async (payload) => {
         // Trigger verification email/code send. Actual account is created on verification.
         await registerRequest(payload);
@@ -129,6 +140,7 @@ export function AuthProvider({ children }) {
         isAuthenticated: !!user,
         isInitializing,
         login,
+        loginWithGoogle,
         register,
         logout,
         refreshUser,

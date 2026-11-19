@@ -23,6 +23,10 @@ import {
 } from "../schemas/auth";
 import { getPasswordStrength } from "../utils/validation";
 import { FormField, inputClass } from "./ui/FormField";
+import {
+    GoogleSignInButton,
+    isGoogleSignInEnabled,
+} from "./GoogleSignInButton";
 import { useAuth } from "../context/AuthContext";
 import {
     confirmPasswordReset,
@@ -113,7 +117,12 @@ function BrandPanel() {
 }
 
 export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
-    const { login, register: registerUser, refreshUser } = useAuth();
+    const {
+        login,
+        loginWithGoogle,
+        register: registerUser,
+        refreshUser,
+    } = useAuth();
     const [awaitingVerification, setAwaitingVerification] = useState(false);
     const [verificationEmail, setVerificationEmail] = useState(null);
     const [verificationCode, setVerificationCode] = useState("");
@@ -121,6 +130,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [serverError, setServerError] = useState(null);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const [resetStep, setResetStep] = useState(null);
     const [resetEmail, setResetEmail] = useState("");
     const [resetCode, setResetCode] = useState("");
@@ -227,6 +237,26 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
             }
         }
     );
+
+    const handleGoogleCredential = async (credential) => {
+        setServerError(null);
+        setGoogleLoading(true);
+        try {
+            await loginWithGoogle(credential);
+            loginForm.reset();
+            registerForm.reset();
+            onClose();
+        } catch (err) {
+            setServerError(
+                getErrorMessage(
+                    err,
+                    "Could not sign in with Google. Please try again."
+                )
+            );
+        } finally {
+            setGoogleLoading(false);
+        }
+    };
 
     const onLoginSubmit = loginForm.handleSubmit(async (values) => {
         setServerError(null);
@@ -689,7 +719,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
 
                             <button
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || googleLoading}
                                 className="w-full mt-2 py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {isSubmitting ? (
@@ -701,6 +731,24 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                                     ? "Signing in…"
                                     : "Sign In Securely"}
                             </button>
+
+                            {isGoogleSignInEnabled && (
+                                <>
+                                    <div className="relative flex items-center py-1">
+                                        <div className="flex-grow border-t border-outline-variant/40" />
+                                        <span className="mx-3 shrink-0 text-[11px] font-medium uppercase tracking-wider text-on-surface-variant">
+                                            or
+                                        </span>
+                                        <div className="flex-grow border-t border-outline-variant/40" />
+                                    </div>
+                                    <GoogleSignInButton
+                                        mode="login"
+                                        disabled={isSubmitting || googleLoading}
+                                        onCredential={handleGoogleCredential}
+                                        onError={(msg) => setServerError(msg)}
+                                    />
+                                </>
+                            )}
 
                             <button
                                 type="button"
@@ -937,7 +985,7 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
 
                             <button
                                 type="submit"
-                                disabled={isSubmitting}
+                                disabled={isSubmitting || googleLoading}
                                 className="w-full py-3 bg-primary text-on-primary font-semibold rounded-xl shadow-md hover:bg-primary-hover active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                             >
                                 {isSubmitting ? (
@@ -949,6 +997,24 @@ export const AuthModal = ({ isOpen, onClose, hideClose = false }) => {
                                     ? "Creating account…"
                                     : "Create iApply Account"}
                             </button>
+
+                            {isGoogleSignInEnabled && (
+                                <>
+                                    <div className="relative flex items-center py-1">
+                                        <div className="flex-grow border-t border-outline-variant/40" />
+                                        <span className="mx-3 shrink-0 text-[11px] font-medium uppercase tracking-wider text-on-surface-variant">
+                                            or
+                                        </span>
+                                        <div className="flex-grow border-t border-outline-variant/40" />
+                                    </div>
+                                    <GoogleSignInButton
+                                        mode="register"
+                                        disabled={isSubmitting || googleLoading}
+                                        onCredential={handleGoogleCredential}
+                                        onError={(msg) => setServerError(msg)}
+                                    />
+                                </>
+                            )}
                         </form> /* ── EMAIL VERIFICATION STEP ──────────────────────────────────────── */
                     ) : (
                         <div className="p-6 space-y-5 overflow-y-auto flex-1">
