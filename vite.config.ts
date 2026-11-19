@@ -9,7 +9,6 @@ export default defineConfig(() => ({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png', 'icons/*.png'],
       manifest: {
         name: 'iApply – Job Application Tracker',
         short_name: 'iApply',
@@ -50,9 +49,19 @@ export default defineConfig(() => ({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        navigateFallbackDenylist: [/^\/account\//, /^\/tracker\//, /^\/admin\//],
+        runtimeCaching: [
+          {
+            urlPattern: /\/(account|tracker|admin)\//,
+            handler: 'NetworkOnly',
+          },
+        ],
       },
     }),
   ],
+  build: {
+    sourcemap: false,
+  },
   server: {
     port: 3000,
     // Security headers served during local development (mirrors production headers).
@@ -63,6 +72,7 @@ export default defineConfig(() => ({
       'X-Frame-Options': 'DENY',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
     },
   },
 }));

@@ -54,11 +54,12 @@ export function AuthProvider({ children }) {
         clearTokens();
         setUser(null);
         if ("caches" in window) {
-            caches.keys().then(names => {
-                for (let name of names) {
-                    caches.delete(name);
-                }
-            });
+            try {
+                const names = await caches.keys();
+                await Promise.all(names.map((name) => caches.delete(name)));
+            } catch {
+                // Ignore Cache Storage errors in restricted browsing contexts.
+            }
         }
     }, []);
 
@@ -85,6 +86,9 @@ export function AuthProvider({ children }) {
                     `${API_BASE_URL}/account/login/refresh/`,
                     {
                         refresh,
+                    },
+                    {
+                        timeout: 8000,
                     }
                 );
                 setAccessToken(data.access);

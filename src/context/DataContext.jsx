@@ -29,20 +29,28 @@ export function DataProvider({ children }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const analyticsTimerRef = useRef(null);
+    const sessionGenRef = useRef(0);
 
     // Debounced analytics sync to avoid hammering the backend while maintaining responsive UI
     const debouncedSyncAnalytics = useCallback(() => {
         if (analyticsTimerRef.current) {
             window.clearTimeout(analyticsTimerRef.current);
         }
+        const gen = sessionGenRef.current;
         analyticsTimerRef.current = window.setTimeout(() => {
+            if (gen !== sessionGenRef.current) return;
             fetchAnalytics()
-                .then(setAnalytics)
+                .then((stats) => {
+                    if (gen === sessionGenRef.current) {
+                        setAnalytics(stats);
+                    }
+                })
                 .catch(() => {});
         }, 400);
     }, []);
     const refresh = useCallback(async () => {
         if (!isAuthenticated) return;
+        const gen = sessionGenRef.current;
         setIsLoading(true);
         setError(null);
         try {
@@ -51,10 +59,12 @@ export function DataProvider({ children }) {
                 listReminders(),
                 fetchAnalytics(),
             ]);
+            if (gen !== sessionGenRef.current) return;
             setApplications(apps);
             setReminders(rems);
             setAnalytics(stats);
         } catch (err) {
+            if (gen !== sessionGenRef.current) return;
             setError(
                 getErrorMessage(
                     err,
@@ -62,16 +72,25 @@ export function DataProvider({ children }) {
                 )
             );
         } finally {
-            setIsLoading(false);
+            if (gen === sessionGenRef.current) {
+                setIsLoading(false);
+            }
         }
     }, [isAuthenticated]);
     useEffect(() => {
+        sessionGenRef.current += 1;
         if (isAuthenticated) {
             refresh();
         } else {
+            if (analyticsTimerRef.current) {
+                window.clearTimeout(analyticsTimerRef.current);
+                analyticsTimerRef.current = null;
+            }
             setApplications([]);
             setReminders([]);
             setAnalytics(null);
+            setError(null);
+            setIsLoading(false);
         }
         return () => {
             if (analyticsTimerRef.current) {

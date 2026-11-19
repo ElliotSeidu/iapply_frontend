@@ -127,6 +127,15 @@ function AppShell() {
     const [legalModalOpen, setLegalModalOpen] = useState(false);
     const [legalModalTab, setLegalModalTab] = useState("privacy");
 
+    useEffect(() => {
+        if (!isAuthenticated) {
+            setSearchQuery("");
+            setEditingApplication(null);
+            setApplicationModalOpen(false);
+            setNotificationDrawerOpen(false);
+        }
+    }, [isAuthenticated]);
+
     const handleOpenLegal = (tab = "privacy") => {
         setLegalModalTab(tab);
         setLegalModalOpen(true);
