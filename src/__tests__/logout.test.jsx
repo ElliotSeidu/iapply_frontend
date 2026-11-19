@@ -42,6 +42,8 @@ function ContextProbe({ onSnapshot }) {
 }
 
 describe("Logout cleanup and post-logout fetch race safety", () => {
+    const originalCaches = window.caches;
+
     beforeEach(() => {
         clearTokens();
         sessionStorage.clear();
@@ -53,12 +55,34 @@ describe("Logout cleanup and post-logout fetch race safety", () => {
     afterEach(() => {
         clearTokens();
         sessionStorage.clear();
+        if (originalCaches === undefined) {
+            delete window.caches;
+        } else {
+            Object.defineProperty(window, "caches", {
+                configurable: true,
+                writable: true,
+                value: originalCaches,
+            });
+        }
         vi.restoreAllMocks();
     });
 
-    it("clears tokens, closes open modal, and resets searchQuery on logout", async () => {
+    it("clears tokens, cache storage, open modal, and searchQuery on logout", async () => {
         const refreshJwt = createFakeJwt(3600);
         setRefreshToken(refreshJwt);
+
+        const cacheKeys = vi
+            .fn()
+            .mockResolvedValue(["workbox-precache-v2", "iapply-runtime"]);
+        const cacheDelete = vi.fn().mockResolvedValue(true);
+        Object.defineProperty(window, "caches", {
+            configurable: true,
+            writable: true,
+            value: {
+                keys: cacheKeys,
+                delete: cacheDelete,
+            },
+        });
 
         vi.spyOn(axios, "post").mockResolvedValue({
             data: { access: "access-token-1", refresh: refreshJwt },
@@ -124,6 +148,9 @@ describe("Logout cleanup and post-logout fetch race safety", () => {
             expect(getAccessToken()).toBeNull();
             expect(getRefreshToken()).toBeNull();
             expect(sessionStorage.length).toBe(0);
+            expect(cacheKeys).toHaveBeenCalledTimes(1);
+            expect(cacheDelete).toHaveBeenCalledWith("workbox-precache-v2");
+            expect(cacheDelete).toHaveBeenCalledWith("iapply-runtime");
         });
 
         await waitFor(() => {
