@@ -14,9 +14,7 @@ export const applicationSchema = z.object({
     company_name: z.string().trim().min(1, "Company name is required").max(255),
     role_title: z.string().trim().min(1, "Role title is required").max(255),
     channel: z.enum(CHANNELS, {
-        errorMap: () => ({
-            message: "Select how you applied",
-        }),
+        error: "Select how you applied",
     }),
     source_detail: z.string().trim().max(500, "Keep this under 500 characters"),
     date_applied: z

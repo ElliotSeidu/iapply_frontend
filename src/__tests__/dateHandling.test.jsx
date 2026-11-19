@@ -91,6 +91,17 @@ describe("applicationSchema and ApplicationsView local date handling", () => {
         );
         expect(badDate.success).toBe(false);
 
+        const badChannel = applicationSchema.safeParse({
+            ...buildBaseApplication(new Date().toLocaleDateString("en-CA")),
+            channel: "invalid_channel",
+        });
+        expect(badChannel.success).toBe(false);
+        if (!badChannel.success) {
+            expect(badChannel.error.issues.map((i) => i.message)).toContain(
+                "Select how you applied"
+            );
+        }
+
         const now = new Date();
         const localToday = now.toLocaleDateString("en-CA");
         const localTomorrow = new Date(
